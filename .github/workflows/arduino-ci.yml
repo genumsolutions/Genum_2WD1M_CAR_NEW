@@ -1,6 +1,6 @@
 name: Arduino CI — Genum_2WD1M_CAR_NEW
 
-# Compile-gate the 4WD4M car firmware. This job does NOT touch any device:
+# Compile-gate the 2WD1M car firmware. This job does NOT touch any device:
 # it proves the sketch still compiles for the exact fqbn the owner flashes
 # (`esp32:esp32:esp32:PartitionScheme=huge_app` — README: Huge APP **REQUIRED**,
 # Arduino core 3.3.12) and reports the flash/SRAM deltas so the round-13 matrix
@@ -20,6 +20,11 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 
 jobs:
   page-js:

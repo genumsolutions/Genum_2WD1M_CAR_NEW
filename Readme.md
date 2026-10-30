@@ -1,6 +1,6 @@
 Version 1.3.19
 
-# 4WD4M Car — Genum_4WD4M_CAR (v2 fleet reference design)
+# 2WD1M Car — Genum_2WD1M_CAR_NEW (v2 fleet reference design)
 
 > `Config.h:10` is the single source of truth for the version. Per-release notes
 > are appended at the bottom of this file; the full history is in
@@ -17,10 +17,10 @@ no donor tags** (fresh git history, owner ruling R-2). The donor repo remains un
 
 | Item | Value |
 |---|---|
-| Bluetooth SPP name | **`4WD4M Car`** (PIN 1234) — `Config.h` `BT_SPP_NAME` (U-110: renamed from `4WD CAR` so the phone list, the OLED and the app match; re-pair once after the change) |
-| Wi-Fi AP SSID | **`4WD4MCar_WiFi`** (open) — `Config.h` `WIFI_AP_NAME` (1.3.5: the ONE own-hotspot name fleet-wide; the donor `WirelessCar_Wifi` and the older `4WDCar_Wifi` are fully removed) |
+| Bluetooth SPP name | **`2WD1M Car`** (PIN 1234) — `Config.h` `BT_SPP_NAME` (U-110 rename so the phone list, the OLED and the app match; re-pair once after the change) |
+| Wi-Fi AP SSID | **`2WD1MCar_WiFi`** (open) — `Config.h` `WIFI_AP_NAME` (1.3.5: the ONE own-hotspot name; donor `WirelessCar_Wifi` and older `4WDCar_Wifi` fully removed) |
 | AP subnet | **192.168.245.1/24** (NOT 192.168.4.x — phone-side subnet collision is a proven past bug; the .244 subnet belongs to the WIRELESS car so two cars can coexist) |
-| FW_NAME / FW_VERSION | `4WD4M Car` / `1.3.18` — `Config.h` |
+| FW_NAME / FW_VERSION | `2WD1M Car` / `2.0.0` — `Config.h` |
 
 ## 3. Modes (fleet 9-token registry + CAPS)
 
@@ -32,10 +32,12 @@ TRACKS/DEVICE-TESTS.md).
 
 | Token | Display | Avail (v1.0.3) | Notes |
 |---|---|---|---|
-| 4WD4M | 4WD4M | **LIVE** | the single drive mode — over **Bluetooth AND Wi-Fi** |
+| 4WD4M | 4WD4M | **CS** | legacy alias token (kept as stub) |
+| 2WD1M | 2WD1M | **LIVE** | signed SPD + SERVO steering over BT + WiFi |
+
 | ESP_SER | Server (ESP_SER) | **REMOVED (U-79)** | was retired to CS in v2; deleted entirely in 1.0.3 — the Wi-Fi web layer is always-on and is the ONLY Wi-Fi setup |
 | ESP_CLI | Client (ESP_CLI) | **REMOVED (U-79)** | was retired to CS in v2; deleted entirely in 1.0.3 |
-| PATH / OBS_US / OBS_IR / MAN / AUTO / 2WD1M | — | CS | fleet roadmap, unchanged |
+| PATH / OBS_US / OBS_IR / MAN / AUTO / 4WD4M | — | CS | fleet roadmap, unchanged |
 
 Legacy alias `BT`/`BLUETOOTH` → 4WD4M still accepted (fleet convention).
 

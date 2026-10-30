@@ -1,7 +1,7 @@
 # Car OLED Storyboard
 
 1.3" SH1106 128×64 driven by U8g2 (`Oled_1_3`).  The header is always the
-project name `4WD4M Car` (Config.h `FW_NAME`), followed by
+project name `2WD1M Car` (Config.h `FW_NAME`), followed by
 `Mode : <registry display name>`.  The body depends on the active mode and
 whether it is a stub (coming-soon) mode.  Redraws are throttled; mode changes
 and "Stopped"/"Failsafe" frames are never dropped (content-change is tested
@@ -12,13 +12,13 @@ transport-frame rotation keeps advancing even while the car sits idle.
 
 | Token    | Live?   | Display          | Notes                            |
 |----------|---------|------------------|----------------------------------|
-| 4WD4M    | live    | 4WD4M            | WAS `BT`/`BLUETOOTH` pre-X-8     |
+| 4WD4M    | CS      | 4WD4M            | legacy alias token (kept as stub) |
 | PATH     | stub    | PATH             | coming-soon                      |
 | OBS_US   | stub    | OBS_US           | coming-soon                      |
 | OBS_IR   | stub    | OBS_IR           | coming-soon                      |
 | MAN      | stub    | MAN              | coming-soon (RF-only)            |
 | AUTO     | stub    | AUTO             | coming-soon                      |
-| 2WD1M    | stub    | 2WD1M            | coming-soon (owner parked it)    |
+| 2WD1M    | live    | 2WD1M            | signed SPD + SERVO steering      |
 
 `ESP_SER` / `ESP_CLI` were **retired (U-79)**: the WiFi web-server is an
 always-on connection layer, not a drive mode, so neither is reachable or
@@ -34,8 +34,8 @@ Legacy alias: old controllers emit `BT` on the wire → normalised to
 ```
 +----------------------------------+
 |                                  |
-|           4WD4M Car              |
-|            v1.3.8                |
+|           2WD1M Car              |
+|            v2.0.0                |
 |      GENUM SOLUTIONS PVT. LTD.   |
 |                                  |
 +----------------------------------+
@@ -46,15 +46,15 @@ Drawn by `Oled_1_3::begin()`: `FW_NAME` (7x13B, y24) · `v<FW_VERSION>`
 ~1400 ms.  After the delay `setup()` enters the restored mode and the framed
 dashboard takes over.
 
-## 2. Live dashboard (4WD4M)
+## 2. Live dashboard (2WD1M)
 
 ```
 +----------------------------------+
-|            4WD4M Car             |  heading 1 = FW_NAME (underlined)
-|        Mode : 4WD4M              |  heading 2 = "Mode : <display>"
+|            2WD1M Car             |  heading 1 = FW_NAME (underlined)
+|        Mode : 2WD1M              |  heading 2 = "Mode : <display>"
 | Status : Forward                 |
 | Speed : 170                 ▮▮▮▮ |  bars while a link is up
-| Bluetooth : 4WD4M Car            |  row 3 — see section 7
+| Bluetooth : 2WD1M Car            |  row 3 — see section 7
 | Type : SPP                       |  row 4 — see section 7
 +----------------------------------+
 ```
@@ -86,7 +86,7 @@ All stub modes share the same OLED frame:
 - Driving commands are refused; `S` (stop) is still accepted and resets the
   failsafe clock.
 
-Modes shown this way: **PATH, OBS_US, OBS_IR, MAN, AUTO, 2WD1M**.
+Modes shown this way: **PATH, OBS_US, OBS_IR, MAN, AUTO, 4WD4M**.
 
 ## 4. Failsafe stop
 
@@ -116,7 +116,7 @@ Modes shown this way: **PATH, OBS_US, OBS_IR, MAN, AUTO, 2WD1M**.
 |        Mode : 4WD4M              |
 | Status :  !!! Ready !!!          |
 | Speed : 170                      |
-| WiFi : 4WD4MCar_WiFi             |
+| WiFi : 2WD1MCar_WiFi             |
 | IP : 192.168.245.1               |
 +----------------------------------+
 ```
@@ -156,11 +156,11 @@ Bluetooth frame              Wi-Fi frame
 ```
 
 - `<name>` is `BT_SPP_NAME` from Config.h — ONE source, not a second hard-coded
-  literal that can drift from the radio.  Since **U-110** it is `4WD4M Car`, so
+  literal that can drift from the radio.  Since **U-110** it is `2WD1M Car`, so
   the phone's pairing list, this frame and the app all name the car the same
   thing.
 - `<ssid>` is the joined router's SSID, or the car's own hotspot name
-  (`4WD4MCar_WiFi`) while it is on its own AP.
+  (`2WD1MCar_WiFi`) while it is on its own AP.
 - `<car IP>` is the car's interface address on that network
   (`WIFI_AP_IP` = `192.168.245.1` on its own AP).
 - **U-110** dropped the old name⇄IP alternation *inside* the Wi-Fi frame: the
