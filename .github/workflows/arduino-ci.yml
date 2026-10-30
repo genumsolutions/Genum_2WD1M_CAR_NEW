@@ -1,4 +1,4 @@
-name: Arduino CI — Genum_4WD4M_CAR
+name: Arduino CI — Genum_2WD1M_CAR_NEW
 
 # Compile-gate the 4WD4M car firmware. This job does NOT touch any device:
 # it proves the sketch still compiles for the exact fqbn the owner flashes
@@ -90,5 +90,5 @@ jobs:
           libraries: |
             - name: WebSockets
             - name: U8g2
-          enable-deltas-report: true
+          enable-deltas-report: false
           github-token: ${{ secrets.GITHUB_TOKEN }}

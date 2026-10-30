@@ -611,7 +611,7 @@ const fw = fs.readFileSync(
   "utf8",
 );
 const ino = fs.readFileSync(
-  path.join(here, "..", "Genum_4WD4M_CAR.ino"),
+  path.join(here, "..", "Genum_2WD1M_CAR_NEW.ino"),
   "utf8",
 );
 const hdr = fs.readFileSync(path.join(here, "..", "WebServerComm.h"), "utf8");
