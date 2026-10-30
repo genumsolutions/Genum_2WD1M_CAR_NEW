@@ -7,7 +7,7 @@ Version 1.3.19
 > `TRACKS/CHANGELOG.md`.
 
 ## 1. Project Name
-**4WD4M Car (`Genum_4WD4M_CAR`) — 4WD modular car (Bluetooth SPP + Wi-Fi AP/STA setup-and-control + OLED + remote/app)**
+**2WD1M Car (`Genum_2WD1M_CAR_NEW`) — 2WD1M car (Bluetooth SPP + Wi-Fi AP/STA setup-and-control + OLED + remote/app)**
 
 The **newest fleet reference design (v2 architecture)**. Baseline: fresh copy of
 `Genum_WIRELESS_CAR` 1.8.4 (`d0bf8c0`, 2026-09-27) with a renamed identity — **no donor history,

@@ -1,6 +1,6 @@
 #pragma once
 // =====================================================================
-// Genum_4WD4M_CAR — multimode 4WD4M car firmware (ESP32 + L298N)
+// Genum_2WD1M_CAR_NEW — multimode 2WD1M car firmware (ESP32 + L298N + servo)
 // File: Config.h — project-wide constants (boards, pins, timing, identity)
 // Property of GENUM SOLUTIONS PVT. LTD.
 // =====================================================================

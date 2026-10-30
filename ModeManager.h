@@ -1,7 +1,7 @@
 #pragma once
 
 // =====================================================================
-// Genum_4WD4M_CAR — multimode 4WD4M car firmware (ESP32 + L298N)
+// Genum_2WD1M_CAR_NEW — multimode 2WD1M car firmware (ESP32 + L298N + servo)
 // File: ModeManager.h — mode engine: mode registry, single command path
 //       (T-1), failsafe, STATE/CAP=STUB/NACK broadcast, per-mode
 //       availability (LIVE/WIP/CS) + transport-aware drive gate

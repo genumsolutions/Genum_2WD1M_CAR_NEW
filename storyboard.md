@@ -70,7 +70,7 @@ All stub modes share the same OLED frame:
 
 ```
 +----------------------------------+
-|            4WD4M Car             |
+|            2WD1M Car             |
 |        Mode : OBS_US             |
 |                                  |
 |          COMING SOON             |
@@ -92,11 +92,11 @@ Modes shown this way: **PATH, OBS_US, OBS_IR, MAN, AUTO, 4WD4M**.
 
 ```
 +----------------------------------+
-|            4WD4M Car             |
+|            2WD1M Car             |
 |        Mode : 4WD4M              |
 | Status : Failsafe Stop !!!       |
 | Speed : 0                        |
-| Bluetooth : 4WD4M Car            |
+| Bluetooth : 2WD1M Car            |
 | Type : SPP                       |
 +----------------------------------+
 ```
@@ -112,7 +112,7 @@ Modes shown this way: **PATH, OBS_US, OBS_IR, MAN, AUTO, 4WD4M**.
 
 ```
 +----------------------------------+
-|            4WD4M Car             |
+|            2WD1M Car             |
 |        Mode : 4WD4M              |
 | Status :  !!! Ready !!!          |
 | Speed : 170                      |
