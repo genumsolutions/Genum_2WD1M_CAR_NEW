@@ -4,7 +4,7 @@
 // commanded directly (no differential skid-steer), the throttle is a fixed
 // setting (no proportional ramp from stick deflection).
 
-#include "2WD1M.h"
+#include "TwoWD1M.h"
 #include "ModeManager.h"
 #include "Config.h"
 #include <string.h>
