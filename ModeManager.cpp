@@ -994,6 +994,11 @@ int ModeManager::getTrim() const {
   return g_2wd1mHandler.getTrim();
 }
 
+void ModeManager::setDriveTrim(int16_t t) {
+  driveTrim_ = t;
+  g_2wd1mHandler.setTrim(t);
+}
+
 void ModeManager::setModeFromString(const char* modeStr) {
   if (!modeStr) return;
 

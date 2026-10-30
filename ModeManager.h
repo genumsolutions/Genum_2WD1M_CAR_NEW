@@ -81,7 +81,7 @@ public:
   void commandSteering(int angle) { steeringServo_.driveAngle(angle); }
   int steeringAngle() const { return steeringServo_.angle(); }
   int16_t getDriveTrim() const { return driveTrim_; }
-  void setDriveTrim(int16_t t) { driveTrim_ = t; g_2wd1mHandler.setTrim(t); }
+  void setDriveTrim(int16_t t);
   static constexpr int TRIM_RANGE = 45;
 
   // v1.0.1 (owner OLED directive 2026-09-28): the dashboard must ALWAYS show
