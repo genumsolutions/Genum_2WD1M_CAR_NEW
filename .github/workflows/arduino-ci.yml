@@ -1,0 +1,94 @@
+name: Arduino CI — Genum_4WD4M_CAR
+
+# Compile-gate the 4WD4M car firmware. This job does NOT touch any device:
+# it proves the sketch still compiles for the exact fqbn the owner flashes
+# (`esp32:esp32:esp32:PartitionScheme=huge_app` — README: Huge APP **REQUIRED**,
+# Arduino core 3.3.12) and reports the flash/SRAM deltas so the round-13 matrix
+# rows (R-20/R-20b, T-71a) that currently read "compile figures PENDING" get
+# real numbers.
+#
+# Pass = compile succeeds + flash within Huge APP budget. Fail = sketch no
+# longer builds → push/PR blocked until fixed.
+#
+# NOTE: `Config.h` pulls `secrets.h` behind `__has_include("secrets.h")` — a
+# per-device gitignored file. arduino-ci makes the sketch compile with NO
+# secrets provisioned (the `#else` branch fills placeholders), so no credential
+# is ever needed in the repo or this workflow.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  page-js:
+    # U-81: the setup page's HTML+JS lives in a C++ raw string, so the compiler
+    # never looks at it. This job does — it parses the inline script and runs the
+    # reply handler against the firmware's real strings, asserting that a
+    # refusal is never rendered as a success. Kept separate from `compile` so a
+    # page bug and a build break are reported as different failures.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: The page's JavaScript parses and tells the truth
+        run: node tools/check-webpage-js.mjs
+
+  firmware-contract:
+    # U-111: The Arduino job answers "does it compile". It cannot answer
+    # "is the Internet method actually wired in" — a transport that compiles
+    # and is never connected is indistinguishable from one that works. This
+    # job reads the source and asserts the seams (drain, STATE fan-out,
+    # connected(), loop pump), the grammar lock, the control prefix, the
+    # restart-record rules, and the watchdog / WebSocket pump rules.
+    #
+    # Separate from `compile` so "the transport is half-wired" and "the build
+    # broke" are different failures, and so the failure text is about the
+    # contract rather than a compiler message about a translation unit.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: The firmware contract holds
+        run: node tools/check-firmware-contract.mjs
+
+  compile:
+    # 2026-10-23: PINNED OFF ubuntu-latest. GitHub rolled ubuntu-latest to
+    # Ubuntu 26.04 and arduino/compile-sketches@v1 fails BEFORE the build —
+    # its actions/setup-python step cannot find its pinned Python 3.12.4 for
+    # 26.04 ("The version '3.12.4' with architecture 'x64' was not found"), so
+    # three pushes in a row went red in ~16 s with the sketch never compiled.
+    # 24.04 ships that Python and still runs the ESP32 3.3.12 build; move back
+    # to -latest only once the action's Python pin supports it.
+    runs-on: ubuntu-24.04
+    # The deltas report reads the base branch's sketches-report artifact over the
+    # GitHub API, which needs a token and `actions: read`. On a `push` to main the
+    # action reads the previous report from the same ref and got away without one;
+    # on a `pull_request` it does not, which broke every PR build with
+    # "Unable to access repository data. Please specify the github-token input".
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compile sketch
+        uses: arduino/compile-sketches@v1
+        with:
+          fqbn: esp32:esp32:esp32:PartitionScheme=huge_app
+          sketch-paths: |
+            - .
+          platforms: |
+            - name: esp32:esp32
+              version: 3.3.12
+          libraries: |
+            - name: WebSockets
+            - name: U8g2
+          enable-deltas-report: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}

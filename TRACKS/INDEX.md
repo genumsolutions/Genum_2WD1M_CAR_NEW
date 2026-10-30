@@ -1,0 +1,78 @@
+# TRACKS — Genum_4WD4M_CAR (INDEX)
+
+> Per-project tracking layer (fleet rule: updated BEFORE and AFTER every session that touches
+> this repo). Cross-project ledger: workspace `guide/GUIDE.md`. Master plan:
+> `guide/PLAN-2026-09-28-4WD4M-CAR-REFERENCE-DESIGN.md`.
+
+**Status (2026-10-25 — U-124 ⑫, FW 1.3.18 written, UNFLASHED):** the owner's
+*"webpage shows white screen in browser and the ip is not hidden anywhere … fix
+these when webpage is off"* — the car half is ONE line: `serveGhostPage()`
+promised `Content-Length: 0` (the empty body string) and then wrote the ghost
+HTML past it, so the browser read its promised 0 bytes and rendered **nothing**.
+`server.setContentLength(len)` now precedes the same `send(...)` — the contract
+`serveRootBounded()` already keeps — so the "The car's web page is turned off"
+message finally reaches the screen. The app half (the IP hiding on every
+surface; `hub.carPageServing` was a never-written ref whose object read
+always-truthy) is the app repo. Contract rule `page-state` extended with the
+ordering assertion + mutant **M144**; `FW_VERSION` → **1.3.18**, CHANGELOG entry
+written. Gates re-run 2026-10-25: **syntax 9/9 · contract 0 · webpage-js PASS ·
+mutate 138/138**; app side (same round) tsc 0 · vitest **934/934** · prettier
+clean. Records: `CHANGELOG` 1.3.18 · `DEVICE-TESTS` **U-124-⑫** (unticked,
+F-61) · `RUNSHEET` header → 1.3.18. Detail:
+`TRACKS/SESSION-2026-10-25-U124.md` (+ app twin).
+
+**Status (2026-10-23 — U-120 round CLOSED, CI REPAIRED):** the "compile error" that blocked
+the owner's device test was **GitHub CI infrastructure, not the firmware** —
+`arduino/compile-sketches@v1` on `ubuntu-latest` (Ubuntu 26.04) fails before building (no
+Python 3.12.4 for 26.04), so every push since 2026-10-22 13:14 went red in ~16 s with the
+sketch never compiled. Fix `47920aa` pins the compile job to `ubuntu-24.04`; the real build
+now passes LOCALLY (exact flashed fqbn `esp32:esp32:esp32:PartitionScheme=huge_app`, core
+3.3.12 — **1,823,174 B / 57% flash, 79,316 B / 24% RAM**) and on CI (run `39900003615`,
+4m19s). Webpage toggle re-verified end-to-end (dispatcher guard → both-form PAGE branch →
+NVS → serve gate → `;PAGE=` on STATE) — the fix is in **1.3.15, which the owner must FLASH**;
+app↔car wire facts for U-120 C/D/E all confirmed present (`WIFICFG;WIFI;PAGE`, `ROUTERS;USE`,
+`ROUTERS;SCAN` explicit-only, `STATE ;IP=`). Final gates: syntax 9/9 · contract 0 · webpage-js
+PASS · **mutate 126/126** · CI green. Open: the owner's BENCH PASS (rows Q1-1/Q1-2/U-120-B,
+unticked, F-61). Detail: `TRACKS/SESSION-2026-10-22-U120.md` §2026-10-23.
+
+**Status (2026-09-28, later session — NO FIRMWARE CHANGE):** Phase 0 + Phase 1 DONE, CI GREEN. v2
+architecture LIVE in firmware:
+**Wi-Fi = always-on connection/setup channel (AP `4WD4MCar_WiFi` @ 192.168.245.1/24 + HTTP :80 +
+WS :81, up from boot, never stopped)** A→ **4WD4M is the single live drive mode over BOTH
+Bluetooth and Wi-Fi (no mode switch)** A→ `ESP_SER`/`ESP_CLI` retired → CS via CAPS A→ WIFICFG
+no longer switches modes A→ boot restore refuses retired modes A→ failsafe/link-loss safe-stop
+transport-honest on both links. Commits: `ac1a9c8` baseline → `a0a06b1` → `1ccbb34` →
+**`a48705e` v2 (run `36377627226`: 1,742,098 B / 55%)**.
+
+**This session was app-only (U-49) and is now SHIPPED.** The owner's "Wi-Fi never connects at all"
+report was **root-caused to the app, not the car** — the release manifest had no Wi-Fi permissions
+and no cleartext allowance, so the app could not legally open a socket (`guide/FAILSAFES.md`
+**F-30**). Firmware re-verified correct, unchanged. App `5c99357` = **v3.2.7/60**: CI
+`36436791234` green, Release `36436791172` green, `genum-solutions-3.2.7.apk` (42.9 MB) published,
+manifest proven with `aapt` in the published artifact. Firmware-facing consequences recorded in
+`TRACKS/FAILSAFE.md` items 9–11 (the `caps` **string** carrier, `setMode()` persisting `CS` tokens,
+**no ESTOP exists** → T7 rewritten). **Next: owner installs 3.2.7 (a NEW APK, not an OTA) and runs
+device round 1** (`DEVICE-TESTS.md`, T3 now unblocked) + app U-49.
+
+| File | Purpose |
+|---|---|
+| `CATALOG.md` | identity, pins, protocol, build facts |
+| `GUIDE.md` | repo role + lineage + compatibility contract |
+| `TODO.md` | phase checklist (P0 done; P1 next) |
+| `FAILSAFE.md` | do-not-break invariants (9–11 added 2026-09-28) |
+| `DEVICE-TESTS.md` | owner-at-the-bench sheets (T3 gated on APK; T7 rewritten) |
+| `NEXT-SESSION.md` | resume point |
+
+**Isolation status:** donor + 5 other repos untouched ✔ (verify before each session close).
+
+## Phase 7 — Fresh-Start Wipe Status
+
+| Deliverable | Status | Location |
+|---|---|---|
+| **1. Car `FACTORY;RESET`** | ✅ Completed (firmware 1.3.6, UNFLASHED) | `WebServerComm.cpp` + `CrashLog.cpp` — wipes `botcfg` namespace |
+| **2. App `resetCarData()`** | N/A (app repo separate) | `useControlHub.ts` — wipes AsyncStorage car keys |
+| **3. DB Migration** | ⚠️ Pending — owner runs `20261013120000_phase7c_fresh_start_cleanup.sql` in Supabase SQL Editor | `genumsolutions-website/supabase/migrations/` — deletes car `1FB608` rows + retention |
+
+_**Note:** The car firmware NVS wipe and app AsyncStorage wipe are owner-executed steps.  
+The DB migration requires running SQL in your Supabase project. All three steps must complete  
+for a full fresh start._
