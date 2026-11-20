@@ -86,14 +86,14 @@ All stub modes share the same OLED frame:
 - Driving commands are refused; `S` (stop) is still accepted and resets the
   failsafe clock.
 
-Modes shown this way: **PATH, OBS_US, OBS_IR, MAN, AUTO, 4WD4M**.
+Modes shown this way: **PATH, OBS_US, OBS_IR, MAN, AUTO, 2WD1M**.
 
 ## 4. Failsafe stop
 
 ```
 +----------------------------------+
 |            2WD1M Car             |
-|        Mode : 4WD4M              |
+|        Mode : 2WD1M              |
 | Status : Failsafe Stop !!!       |
 | Speed : 0                        |
 | Bluetooth : 2WD1M Car            |
@@ -113,7 +113,7 @@ Modes shown this way: **PATH, OBS_US, OBS_IR, MAN, AUTO, 4WD4M**.
 ```
 +----------------------------------+
 |            2WD1M Car             |
-|        Mode : 4WD4M              |
+|        Mode : 2WD1M              |
 | Status :  !!! Ready !!!          |
 | Speed : 170                      |
 | WiFi : 2WD1MCar_WiFi             |

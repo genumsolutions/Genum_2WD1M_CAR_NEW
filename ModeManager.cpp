@@ -1,5 +1,5 @@
 // =====================================================================
-// Genum_4WD4M_CAR — multimode 4WD4M car firmware (ESP32 + L298N)
+// Genum_2WD1M_CAR_NEW — multimode 2WD1M car firmware (ESP32 + L298N + servo)
 // File: ModeManager.cpp — mode engine: handleCommand() single path (T-1),
 //       registry gating, failsafe, STATE/CAP/NACK broadcast
 // Property of GENUM SOLUTIONS PVT. LTD.
@@ -35,8 +35,9 @@ static int g_steerLimit = 90;
 //                   car renders its own COMING SOON / IN PROGRESS frame).
 // v2 ARCHITECTURE (owner ruling R-4, plan § Phase 1): the web layer is an
 // ALWAYS-ON connection/setup channel, NOT a mode. ESP_SER (webserver) and
-// ESP_CLI (webclient) are retired as drive modes → CS; 4WD4M is the single
-// live drive mode and accepts drive over BOTH transports (Bluetooth via
+// ESP_CLI (webclient) are retired as drive modes → CS; in THIS project 2WD1M is
+// the single LIVE drive mode (4WD4M survives as a CS alias) and it accepts drive
+// over BOTH transports (Bluetooth via
 // acceptsBtDrive, WebSocket/HTTP via the WIRE source — see handleCommand()).
 const ModeManager::ModeEntry ModeManager::MODE_REGISTRY[ModeManager::MODE_COUNT] = {
   //                     token     display             sgn   auto  drive avail       btDrive

@@ -53,19 +53,19 @@
 // BluetoothComm::begin() passes it to SerialBT.begin(); the OLED's Bluetooth
 // frame shows it (the "real BT name", not a second hard-coded literal that can
 // drift from what the radio actually advertises). Keep in sync with CATALOG.md.
-// U-110 (owner 2026-10-14): renamed "4WD CAR" -> the project identity
-// "4WD4M Car", so the phone's pairing list, this OLED frame and the app's
-// Bluetooth picker name the car the same thing (the owner could not match the
-// "4WD CAR" the radio advertised to the "4WD4M Car" the app/OLED showed). The
-// first boot after this change needs a fresh pairing: the phone keeps the old
-// bond against the previous name.
+// U-110 (owner 2026-10-14) fixed the "it appears but the name does not match"
+// confusion: the phone's pairing list, this OLED frame and the app's Bluetooth
+// picker must all name the car the same thing. This project's name is the
+// mixed-case project identity "2WD1M Car" (NOT upper-cased), and the app's
+// device registry carries the identical string. The first boot after a rename
+// needs a fresh pairing: the phone keeps the old bond against the previous name.
 #define BT_SPP_NAME "2WD1M Car"
 
 // U-79: Transport power arbitration mutex - declared extern so it can be
 // shared between .ino and transport classes (WebServerComm, BluetoothComm)
 // for atomic state transitions during stop/begin/restart operations.
 // Uses ESP32 Arduino's portMUX (via Arduino.h) for critical sections.
-// The actual definition is in Genum_4WD4M_CAR.ino to avoid multiple definitions.
+// The actual definition is in Genum_2WD1M_CAR_NEW.ino to avoid multiple definitions.
 extern portMUX_TYPE transportPowerMux;
 
 // U-79: Critical section macros for transport power arbitration.
@@ -113,8 +113,12 @@ constexpr OledSize OLED_SIZE = OledSize::OLED_1_3;
 constexpr SwitchType SWITCH_TYPE = SwitchType::MOMENTARY;
 
 // ===== PWM / timeouts =====
+// 8-bit PWM for the motor driver (LEDC high-speed timer 0). The driver speaks to
+// the IDF LEDC API (driver/ledc.h) directly, which exists on both core 3.x and
+// 4.x - the Arduino ledcSetup()/ledcWrite() wrappers are not used anywhere.
 constexpr uint32_t PWM_FREQ = 20000u;
 constexpr uint8_t PWM_RESOLUTION = 8u;
+// This car's servo owns LEDC timer 1 / channel 2 at 16-bit (SteeringServo.cpp).
 constexpr uint32_t FAILSAFE_TIMEOUT_MS = 2000u;
 
 // ===== P1b/T-7b · BT hard-restart watchdog (2WD1M car parity) =====
@@ -205,12 +209,12 @@ constexpr unsigned long SWITCH_DEBOUNCE_MS = 50u;
 // suffix is gone per owner (name is fixed, no MAC). T-66 (round-9): in ESP_SER
 // this network is the DEFAULT + protected (it leads every saved-router list
 // and can never be deleted/added/saved).
-// U-105 (1.3.5, owner 2026-10-13): ONE own-AP identity. The old fleet carried
-// both the donor's `WirelessCar_Wifi` and the earlier `4WDCar_Wifi`, which
-// duplicated/confused the "car's own hotspot" row everywhere. The owner ruled:
-// *"remove discrepancies and keep fallback default 4WD4MCar_WiFi only and
-// remove that genum car and donor things completely."* This is the ONLY name
-// in the system now (the app registry holds exactly this too).
+// U-105 (1.3.5, owner 2026-10-13) removed the duplicate fleet names: the donor's
+// `WirelessCar_Wifi` and the earlier `4WDCar_Wifi` are gone from firmware AND
+// app. Each car now owns exactly ONE name; this car's is `2WD1MCar_WiFi` (the
+// 4WD4M car keeps `4WD4MCar_WiFi`). The app's own-hotspot registry
+// (`carProtocol.OWN_AP_NAMES`) lists both, so one phone can drive either car
+// without a name ever being guessed — never add a third spelling of either.
 constexpr char WIFI_AP_NAME[] = "2WD1MCar_WiFi";
 // FIN-48: the own-hotspot gateway. One source for the OLED fallback line so
 // the old "192.168.4.1" placeholder (a DIFFERENT subnet) can never appear on

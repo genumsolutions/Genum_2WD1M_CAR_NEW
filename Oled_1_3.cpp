@@ -1,5 +1,5 @@
 // =====================================================================
-// Genum_4WD4M_CAR — multimode 4WD4M car firmware (ESP32 + L298N)
+// Genum_2WD1M_CAR_NEW — multimode 2WD1M car firmware (ESP32 + L298N + servo)
 // File: Oled_1_3.cpp — SH1106 1.3" UI: dashboards + stub COMING SOON frames.
 //       (U-79 removed ESP_SER from the mode registry and with it the old
 //       "signal bars + RSSI + IP" layout; redrawNow() now draws only the LIVE

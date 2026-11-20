@@ -1,6 +1,6 @@
 #pragma once
 // =====================================================================
-// Genum_4WD4M_CAR — multimode 4WD4M car firmware (ESP32 + L298N)
+// Genum_2WD1M_CAR_NEW — multimode 2WD1M car firmware (ESP32 + L298N + servo)
 // File: CrashLog.h — persisted record of why the car last rebooted
 // Property of GENUM SOLUTIONS PVT. LTD.
 // =====================================================================
@@ -19,7 +19,7 @@
 // the operator at a label that was therefore unreachable. (This used to quote the
 // banner verbatim as "TASK WATCHDECK"; that string was a typo that survives
 // nowhere else, and the banner it referred to has since been replaced — the
-// authoritative account is in Genum_4WD4M_CAR.ino's crashLogBegin() block.)
+// authoritative account is in Genum_2WD1M_CAR_NEW.ino's crashLogBegin() block.)
 //
 // So this module does three things the serial print could not:
 //   1. counts boots, so a reboot loop is visible as a NUMBER rather than a

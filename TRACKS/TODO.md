@@ -3,7 +3,7 @@
 ## Phase 0 — repo baseline + rename (2026-09-28) — DONE
 - [x] **P0-1** fresh copy from donor 1.8.4 (`d0bf8c0`) via `git archive` — no `.git/`, no
       `secrets.h`, no `build/`, donor TRACKS not carried
-- [x] **P0-2** rename: `Genum_4WD4M_CAR.ino` · FW_NAME `4WD4M Car` · FW_VERSION `1.0.0` ·
+- [x] **P0-2** rename: `Genum_4WD4M_CAR.ino` · FW_NAME `2WD1M Car` · FW_VERSION `1.0.0` ·
       BT `4WD CAR` · AP `4WDCar_Wifi` · AP subnet 192.168.245.1/24 · CI workflow name ·
       header comments · `storyboard.md` · `secrets.h.example` · `.gitignore`
 - [x] **P0-3** fresh `Readme.md` (v2 architecture, identity table, donor lineage)

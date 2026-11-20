@@ -1,5 +1,5 @@
 // =====================================================================
-// Genum_4WD4M_CAR — multimode 4WD4M car firmware (ESP32 + L298N)
+// Genum_2WD1M_CAR_NEW — multimode 2WD1M car firmware (ESP32 + L298N + servo)
 // File: WebPage.h — static browser control page served at / (PROGMEM)
 // Property of GENUM SOLUTIONS PVT. LTD.
 // =====================================================================
@@ -39,7 +39,7 @@ static const char PAGE_HTML[] PROGMEM = R"rawliteral(
 <head>
   <meta charset='utf-8'/>
   <meta name='viewport' content='width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no'/>
-  <title>4WD4M Car</title>
+  <title>2WD1M Car</title>
   <style>
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
     html,body{height:100%;margin:0;overflow:hidden;background:#111;color:#eee;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,Helvetica,sans-serif;line-height:1.5}
@@ -232,7 +232,7 @@ static const char PAGE_HTML[] PROGMEM = R"rawliteral(
             // never appear. The (coming soon) label suffix stays so a stub
             // mode is never mistaken for a finished one - only the DISABLE
             // state is gone. Honest consequence, known to the owner: entering
-            // a stub mode gates the drive controls until 4WD4M is picked
+            // a stub mode gates the drive controls until 2WD1M is picked
             // again; switching back is one dropdown tap.
             if (typeof j.caps === 'string') {
               var caps = {};
@@ -498,13 +498,13 @@ static const char PAGE_HTML[] PROGMEM = R"rawliteral(
 </head>
 <body>
   <div class='frame'>
-    <h1>4WD4M Car</h1>
+    <h1>2WD1M Car</h1>
     <div class='top-selects'>
       <select id='m'>
         <!-- F-57: the first option is the "car has not told us yet" state and is
              what the page shows until the car reports. The old page hardcoded
              MODE_ESP_SERVER as the selected value, so it displayed "ESP32 (WS)"
-             while the car was really in 4WD4M - the same page showed the true
+             while the car was really in 2WD1M - the same page showed the true
              mode in the #mode readout and a different one here (F-53). A
              dropdown must not assert a state nothing has confirmed. -->
         <option value='' selected>— current mode —</option>

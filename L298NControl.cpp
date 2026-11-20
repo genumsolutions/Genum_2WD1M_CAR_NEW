@@ -1,5 +1,5 @@
 // =====================================================================
-// Genum_4WD4M_CAR — multimode 4WD4M car firmware (ESP32 + L298N)
+// Genum_2WD1M_CAR_NEW — multimode 2WD1M car firmware (ESP32 + L298N + servo)
 // File: L298NControl.cpp — L298N H-bridge skid-steer driver (LEDC PWM 0/1)
 // Property of GENUM SOLUTIONS PVT. LTD.
 // =====================================================================

@@ -37,7 +37,7 @@ unticked, F-61). Detail: `TRACKS/SESSION-2026-10-22-U120.md` §2026-10-23.
 
 **Status (2026-09-28, later session — NO FIRMWARE CHANGE):** Phase 0 + Phase 1 DONE, CI GREEN. v2
 architecture LIVE in firmware:
-**Wi-Fi = always-on connection/setup channel (AP `4WD4MCar_WiFi` @ 192.168.245.1/24 + HTTP :80 +
+**Wi-Fi = always-on connection/setup channel (AP `2WD1MCar_WiFi` @ 192.168.245.1/24 + HTTP :80 +
 WS :81, up from boot, never stopped)** A→ **4WD4M is the single live drive mode over BOTH
 Bluetooth and Wi-Fi (no mode switch)** A→ `ESP_SER`/`ESP_CLI` retired → CS via CAPS A→ WIFICFG
 no longer switches modes A→ boot restore refuses retired modes A→ failsafe/link-loss safe-stop

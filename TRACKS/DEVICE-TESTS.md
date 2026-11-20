@@ -1,7 +1,7 @@
 # DEVICE-TESTS — Genum_4WD4M_CAR
 
 > Owner-at-the-bench sheets. Test order per standing rule: physical remote first — EXCEPT this
-> car, until O-3 (remote pairing update for `4WD4M Car`) lands → app-first for round 1.
+> car, until O-3 (remote pairing update for `2WD1M Car`) lands → app-first for round 1.
 
 ## Unreleased boot-policy check (based on **1.3.19** — DEVICE VERIFY PENDING)
 
@@ -60,7 +60,7 @@
 > ordering assert) · webpage-js PASS · mutate **138/138** (M144 new).
 
 - [ ] **U-124-⑫ — ⭐ the turned-off page SAYS SO instead of showing a white
-      screen.** Flash 1.3.18, join `4WD4MCar_WiFi`, turn the **Webpage toggle
+      screen.** Flash 1.3.18, join `2WD1MCar_WiFi`, turn the **Webpage toggle
       OFF** from the app, then open the car's IP (`192.168.245.1`) in a phone
       browser: the dark page must show **"The car's web page is turned off.
       The car is still here — Bluetooth and its own hotspot keep working."**
@@ -82,7 +82,7 @@
 > `switch-heap`) · webpage-js 0 failures · mutate **137/137** (M137–M143 new).
 
 - [ ] **U-121-E2 — ⭐ connecting the Wi-Fi FROM THE APP never resets the car.**
-      Flash 1.3.17, join `4WD4MCar_WiFi`, turn **Bluetooth ON** (this is the
+      Flash 1.3.17, join `2WD1MCar_WiFi`, turn **Bluetooth ON** (this is the
       starved-heap case: free heap drops to the 13–20 kB floor). From the app,
       switch the car to a reachable router. Either the heap allows it and the
       switch completes normally (`[RADIO] rejoin/mode-AP` → … →
@@ -115,7 +115,7 @@
       (the version wipe cleared it) and power-cycle: `WIFICFG;AUTOJOIN` answers
       `OFF`, serial logs `[WIFICFG] boot auto-join disabled - staying on own
       hotspot`, STATE carries `;AUTOJOIN=OFF`, and the car does NOT rejoin the
-      router — it stays reachable on `4WD4MCar_WiFi`.
+      router — it stays reachable on `2WD1MCar_WiFi`.
 - [ ] **Q1-2 — the opt-in still hops honestly.** Send `WIFICFG;AUTOJOIN;ON`,
       power-cycle: the probe runs (serial `[WIFICFG] boot: checking whether …`)
       and the car rejoins the saved router when it is present; `;AUTOJOIN=ON` on
@@ -221,7 +221,7 @@ owner's — the order and capture commands are in `TRACKS/RUNSHEET.md`.
 
 - [ ] **U-115-1 — ⭐ the own hotspot is joinable the second it appears (saved router ABSENT).**
       Switch the saved router OFF (or move the car out of its range), then cold-boot the
-      car. The phone's Wi-Fi scan sees `4WD4MCar_WiFi` and a **join completes within
+      car. The phone's Wi-Fi scan sees `2WD1MCar_WiFi` and a **join completes within
       seconds** — no "detected but won't connect", no waiting for a Bluetooth-off moment.
       Serial shows the boot reachability probe and then **no rejoin churn** (the car stays
       AP-only because the router was absent).
@@ -263,7 +263,7 @@ owner's — the order and capture commands are in `TRACKS/RUNSHEET.md`.
   `[WIFICFG] boot: returning to last-switched router "Esp" (full budget)` —
   both were present on the pre-flash boot (1.3.10). The router store was cleared
   by the fresh-`FW_VERSION` install, exactly as documented.
-- **U-109 holds on the device:** `[V2] Web layer always-on: AP=4WD4MCar_WiFi ip=192.168.245.1 http=:80 ws=:81`
+- **U-109 holds on the device:** `[V2] Web layer always-on: AP=2WD1MCar_WiFi ip=192.168.245.1 http=:80 ws=:81`
   — `AP=` is **not** empty.
 - **E1 partial — 4 of the 6 `[HEAPW]` stages, one cold boot, no phone attached:**
 
@@ -303,7 +303,7 @@ owner's — the order and capture commands are in `TRACKS/RUNSHEET.md`.
   `C:\Users\caspe\AppData\Local\Arduino15`.
 
 - [ ] **U-113-8 — ⭐ P4 acceptance: both links live, the heap holds (issue 6).**
-      Pair BT, join `4WD4MCar_WiFi`, open the page, drive over both links —
+      Pair BT, join `2WD1MCar_WiFi`, open the page, drive over both links —
       10 min soak. The car does not reset; the U-112 guards may still defer under
       load but telemetry returns within 4 s. **Capture the six `[HEAPW]` lines**
       from one cold boot spanning pair → page → both links (RUNSHEET step 6b):
@@ -312,7 +312,7 @@ owner's — the order and capture commands are in `TRACKS/RUNSHEET.md`.
       closed; the scan floor stays 65536 B). See the bench log above.
 - [ ] **U-113-9 — ⭐ issue 7: Wi-Fi OFF hides everything.** With BT ON, send
       `WIFICFG;WIFI;OFF` (app Connectivity panel or the page console). Within
-      ~3 s the phone's Wi-Fi scan no longer lists `4WD4MCar_WiFi`, an already-open
+      ~3 s the phone's Wi-Fi scan no longer lists `2WD1MCar_WiFi`, an already-open
       page stops serving (`http://192.168.245.1` unreachable), and the serial shows
       the web layer stopping. **Leave it OFF for >= 1 min and re-scan**: the SSID
       must NOT come back (before this fix `handle()`'s retry re-created the
@@ -323,8 +323,8 @@ owner's — the order and capture commands are in `TRACKS/RUNSHEET.md`.
       for the app to connect first. The own hotspot must be visible the whole
       time (never parked).
 - [ ] **U-113-11 — issue 7b: both ON ⇒ both offered.** With both toggles ON and
-      no client attached: the phone's scan sees `4WD4MCar_WiFi`, that page is
-      browsable, AND Android's Bluetooth device list shows `4WD4M Car`
+      no client attached: the phone's scan sees `2WD1MCar_WiFi`, that page is
+      browsable, AND Android's Bluetooth device list shows `2WD1M Car`
       advertising — all three simultaneously, for >= 1 min.
 - [ ] **U-113-12 — ⭐ issue 1: BOTH links up at the same time, in both orders.** On the
       **P6 build** (car **1.3.12** + app **3.2.7/60**, JS-only OTA), with the car on its
@@ -367,7 +367,7 @@ owner's — the order and capture commands are in `TRACKS/RUNSHEET.md`.
 > `[SCAN] refused` lines — they are this round's evidence.
 
 - [ ] **U-112-1 — ⭐ Bluetooth + own hotspot together, no reset.** Power the
-      car (1.3.11), pair BT, and join `4WD4MCar_WiFi` on the same phone.
+      car (1.3.11), pair BT, and join `2WD1MCar_WiFi` on the same phone.
       Both links live for >= 5 min: the car does NOT reset, the app stays
       connected on BT, and the crash counters in `/status` do not move
       (previously: reset at crash 757 during this exact sequence).
@@ -415,17 +415,17 @@ owner's — the order and capture commands are in `TRACKS/RUNSHEET.md`.
 > sometimes won't connect, flaky Wi-Fi with an occasional freeze — plus the
 > app↔car settings round-trip the owner asked for.
 >
-> **Before testing, forget the old `4WD CAR` bond AND any stale `4WD4MCar_WiFi`
+> **Before testing, forget the old `4WD CAR` bond AND any stale `2WD1MCar_WiFi`
 > profile** (Android caches both). Flashing 1.3.8 is a version change, so the car
 > wipes its saved routers + transport toggles on first boot (clean start, both
 > transports ON, auto-join ON).
 
 - [ ] **U-111-1 — ⭐ Bluetooth actually PAIRS now.** Forget `4WD CAR` in Android
-      Settings → Bluetooth. Power the car (1.3.8) and pair to `4WD4M Car`:
+      Settings → Bluetooth. Power the car (1.3.8) and pair to `2WD1M Car`:
       **no PIN is asked** (SSP "Just Works"); if a PIN is ever requested it is
       `1234`. The bond completes and the app's Bluetooth link opens. The old build
       answered Android's PIN request with an EMPTY PIN, so this never worked.
-- [ ] **U-111-2 — ⭐ the phone joins `4WD4MCar_WiFi` first try.** Forget/re-add the
+- [ ] **U-111-2 — ⭐ the phone joins `2WD1MCar_WiFi` first try.** Forget/re-add the
       network once (Android caches a stale profile against an open AP). The car's
       hotspot appears within ~5 s of boot and the phone gets `192.168.245.x`;
       `http://192.168.245.1/status` answers.
@@ -461,11 +461,11 @@ owner's — the order and capture commands are in `TRACKS/RUNSHEET.md`.
 
 - [ ] **U-110-1 — ⭐ the OLED last-two-rows read exactly this.** With both
       transports ON the two frames alternate ~1 s:
-      `Bluetooth : 4WD4M Car` / `Type : SPP`, then `WiFi : <ssid>` /
+      `Bluetooth : 2WD1M Car` / `Type : SPP`, then `WiFi : <ssid>` /
       `IP : <car IP>`. With a single transport enabled only that frame shows.
-- [ ] **U-110-2 — ⭐ the phone pairs to `4WD4M Car`.** **FORGET the old `4WD CAR`
+- [ ] **U-110-2 — ⭐ the phone pairs to `2WD1M Car`.** **FORGET the old `4WD CAR`
       pairing first** (the name changed). The car appears in the BT list as
-      `4WD4M Car`; pairing succeeds (PIN 1234 if asked) and the app's Bluetooth
+      `2WD1M Car`; pairing succeeds (PIN 1234 if asked) and the app's Bluetooth
       link opens.
 - [ ] **U-110-3 — the BT stack is up, or the log says so.** At boot, either
       `[POWER] Bluetooth advertising…` prints, or `[BT] begin refused` followed
@@ -490,13 +490,13 @@ owner's — the order and capture commands are in `TRACKS/RUNSHEET.md`.
 > could neither join the hotspot nor be found by the app's discovery sweep.
 
 - [ ] **U-109-1 — ⭐ the own hotspot is actually up after boot.** Power-on 1.3.6, wait ~5 s:
-      in the phone's Wi-Fi list `4WD4MCar_WiFi` appears **without** the car ever having
+      in the phone's Wi-Fi list `2WD1MCar_WiFi` appears **without** the car ever having
       joined a router. (No `[RADIO] skip-softAP/sta-busy` line at boot; the bring-up line
-      `Own AP active: 4WD4MCar_WiFi` prints.)
+      `Own AP active: 2WD1MCar_WiFi` prints.)
 - [ ] **U-109-2 — `/status` `ap` is non-empty.** GET `http://192.168.245.1/status` (phone on
-      the car's hotspot): `"ap":"4WD4MCar_WiFi"` — not `""`.
+      the car's hotspot): `"ap":"2WD1MCar_WiFi"` — not `""`.
 - [ ] **U-109-3 — the app finds the car with no router involved.** Open the app's
-      Connect/Link screen with the phone on `4WD4MCar_WiFi`: the discovery sweep matches the
+      Connect/Link screen with the phone on `2WD1MCar_WiFi`: the discovery sweep matches the
       car by own-AP name.
 - [ ] **U-109-4 — boot log no longer prints the LEDC errors.** The `E ledc: LEDC is not
       initialized` lines that followed `[BOOT] Restored mode=…` are gone (the motor guard).
@@ -558,9 +558,9 @@ owner's — the order and capture commands are in `TRACKS/RUNSHEET.md`.
 
 - [ ] **U-108-1 — FACTORY;RESET wipes the car clean.** Send `FACTORY;RESET` (app button or
       raw line): reply `FACTORY;CLEARED`. After a power-cycle: the car boots on its own
-      hotspot `4WD4MCar_WiFi`; STATE shows `SSID=4WD4MCar_WiFi` (no router); STATE `;WIFI=ON`,
+      hotspot `2WD1MCar_WiFi`; STATE shows `SSID=2WD1MCar_WiFi` (no router); STATE `;WIFI=ON`,
       `;BT=ON`, `;AUTOJOIN=ON`; OLED shows the AP IP `192.168.245.1`; saved router list
-      (`NETW;`) contains only `4WD4MCar_WiFi`; the boot/crash counters are `boot=1`,
+      (`NETW;`) contains only `2WD1MCar_WiFi`; the boot/crash counters are `boot=1`,
       `crash=0`; the crash record is dropped (`reset_reason` gone).
 - [ ] **U-108-2 — TIME;<epoch> + TIME? work.** With the car connected, the app sends
       `TIME;<unixEpoch>` on every connect. Send `TIME?` (raw): reply `TIME;<now>;<configEpoch>`
@@ -602,13 +602,13 @@ owner's — the order and capture commands are in `TRACKS/RUNSHEET.md`.
 > and Bluetooth can never BOTH be off.**
 
 - [ ] **U-105-1 — first flash: both transports open at once.** Fresh 1.3.5 boot: serial `[FIRST-BOOT]`
-      wipes clean; the own hotspot `4WD4MCar_WiFi` and Bluetooth `4WD CAR` are BOTH up simultaneously
+      wipes clean; the own hotspot `2WD1MCar_WiFi` and Bluetooth `4WD CAR` are BOTH up simultaneously
       — a second phone's scan sees the AP while the first drives over BT, and STATE frames arrive on
       both (this is the "parallel" default — always-on, no teardown).
 - [ ] **U-105-2 — `WIFICFG;WIFI;OFF` stops the web layer; `;ON` brings it back.** Send
       `WIFICFG;WIFI;OFF` (app toggle or raw) → reply `WIFICFG;WIFI;OFF`. The AP disappears from a
       phone scan and :80/:81 stop answering; Bluetooth keeps working (drive over BT). Send
-      `WIFICFG;WIFI;ON` → the AP `4WD4MCar_WiFi` returns. Power-cycle: the setting persists.
+      `WIFICFG;WIFI;ON` → the AP `2WD1MCar_WiFi` returns. Power-cycle: the setting persists.
 - [ ] **U-105-3 — `WIFICFG;BT;OFF` stops Bluetooth; `;ON` brings it back.** Send `WIFICFG;BT;OFF` →
       reply `WIFICFG;BT;OFF`; `4WD CAR` is gone from a phone's BT scan while the web/AP link (and its
       STATE) keeps working. `WIFICFG;BT;ON` restores it. Power-cycle: persists.
@@ -622,10 +622,10 @@ owner's — the order and capture commands are in `TRACKS/RUNSHEET.md`.
 - [ ] **U-105-6 — boot auto-join toggle.** `WIFICFG;AUTOJOIN;OFF` then power-cycle with a reachable
       saved router: the car boots on its own hotspot and does NOT join the router. `;ON` restores
       the boot hop to the last-switched router.
-- [ ] **U-105-7 — ⭐ the own hotspot name is `4WD4MCar_WiFi` EVERYWHERE.** One phone scanning sees
-      exactly ONE own network: `4WD4MCar_WiFi` (open, 192.168.245.1). No `4WD4MCar_WiFi`, no
+- [ ] **U-105-7 — ⭐ the own hotspot name is `2WD1MCar_WiFi` EVERYWHERE.** One phone scanning sees
+      exactly ONE own network: `2WD1MCar_WiFi` (open, 192.168.245.1). No `2WD1MCar_WiFi`, no
       `WirelessCar_Wifi` on the wire, in the app's registry, in the page dropdown, or on the OLED
-      fallback (car with no STA: OLED shows `Wifi : 4WD4MCar_WiFi` / `IP : 192.168.245.1`, never a
+      fallback (car with no STA: OLED shows `Wifi : 2WD1MCar_WiFi` / `IP : 192.168.245.1`, never a
       bare name or `192.168.4.1`).
 - [ ] **U-105-8 — ⭐ an existing saved router survives the flash-and-settle.** This flash wipes the
       router surface ONCE (fresh install). Add a router + switch to it, power-cycle: the car returns
@@ -645,7 +645,7 @@ owner's — the order and capture commands are in `TRACKS/RUNSHEET.md`.
 
 - [ ] **U-98-1 — the first boot after a flash is clean.** Right after flashing 1.3.0 the serial shows
       `[FIRST-BOOT] firmware 1.3.0 is a fresh install - saved router/config NVS erased`. The saved
-      router list (`NETW;` / the page dropdown) contains only `4WD4MCar_WiFi`; no pre-flash router
+      router list (`NETW;` / the page dropdown) contains only `2WD1MCar_WiFi`; no pre-flash router
       survives. This runs ONCE — a later power-cycle of the same 1.3.0 wipes nothing.
 - [ ] **U-98-2 — same-firmware power cycles KEEP the routers (U-84).** Add a router, power-cycle the
       car (NO re-flash): the router is still saved, no `[FIRST-BOOT]` line, and the boot log shows the
@@ -653,17 +653,17 @@ owner's — the order and capture commands are in `TRACKS/RUNSHEET.md`.
 - [ ] **U-98-3 — boot returns to the last-SWITCHED router.** With a reachable router saved,
       power-cycle: serial shows `[WIFICFG] boot: returning to last-switched router "<ssid>" (full
       budget)` and the car associates (STATE `SSID=` = the router, a real DHCP IP). The own hotspot is
-      up the whole time (a phone scan can see `4WD4MCar_WiFi` during the attempt).
+      up the whole time (a phone scan can see `2WD1MCar_WiFi` during the attempt).
 - [ ] **U-98-4 — ⭐ the deleted router does NOT come back (the owner's report).** Save router A and
       switch to it, then **delete A** (`ROUTERS;DEL;A`, page or app). Power-cycle. The car must NOT
-      return to A — it comes up on its own hotspot (`4WD4MCar_WiFi`, `192.168.245.1`). Pre-fix it
+      return to A — it comes up on its own hotspot (`2WD1MCar_WiFi`, `192.168.245.1`). Pre-fix it
       re-joined A from the surviving last-good pair. Confirm `NETW;` no longer lists A.
 - [ ] **U-98-5 — an unreachable last-switched router still ends on the own hotspot.** Save router B,
       switch to it, then turn B OFF. Power-cycle: the car spends the full budget on B, then
-      `WiFi STA gave up (router unreachable) - AP-only mode`; `4WD4MCar_WiFi` is joinable and the page
+      `WiFi STA gave up (router unreachable) - AP-only mode`; `2WD1MCar_WiFi` is joinable and the page
       loads at `192.168.245.1`. It must never sit on B with no reachable page.
 - [ ] **U-98-6 — "back to my own hotspot" then power-cycle stays on the own hotspot.** From a router,
-      pick `4WD4MCar_WiFi` (page dropdown / app), let it return, then power-cycle: the car comes up on
+      pick `2WD1MCar_WiFi` (page dropdown / app), let it return, then power-cycle: the car comes up on
       its own hotspot and does NOT hop back to the router (the last-good pair was cleared with the
       stored pair). STATE `SSID=` shows the AP / no router association.
 - [ ] **U-98-7 — WIFICFG;RESET and ROUTERS;CLEAR wipe the last-good pair too.** With a router set, send
@@ -753,7 +753,7 @@ owner's — the order and capture commands are in `TRACKS/RUNSHEET.md`.
       `Scanning for networks...`, then a table with the headings Network/Signal/Ch/Flags appears with
       >=44px rows inside its own scroll region (the page itself never scrolls). The car's own hotspot
       appears as a labelled row with the OWN flag even when the scan did not list it; tapping it
-      answers `ROUTERS;USED;4WD4MCar_WiFi` and the phone ends up back on the car's hotspot. Tapping an
+      answers `ROUTERS;USED;2WD1MCar_WiFi` and the phone ends up back on the car's hotspot. Tapping an
       UNSAVED network shows a refusal-coloured note and sends nothing. The status rail shows the
       Hotspot (`j.ap`) and Bcast (`broadcast_ip`) lines, not `--`.
 - [ ] **U-95-15 — the reconnect backs off and respects a hidden tab (1.2.3, Phase 3c).** Kill the
@@ -779,14 +779,14 @@ owner's — the order and capture commands are in `TRACKS/RUNSHEET.md`.
       rewrite (ADD/USE with a password now refuse the own name; every ordinary router name still
       adds/switches normally).
 - [ ] **U-92-2 — "back to my own hotspot" actually returns.** Car on router X (phone on X):
-      pick 4WD4MCar_WiFi from the dropdown → one `REPLY=ROUTERS;USED;4WD4MCar_WiFi`, then serial
+      pick 2WD1MCar_WiFi from the dropdown → one `REPLY=ROUTERS;USED;2WD1MCar_WiFi`, then serial
       `[RADIO] rejoin/...` steps ending in **`WiFi STA left the router - back on the car's own
-      hotspot`** — the car is genuinely AP-only and the phone must rejoin 4WD4MCar_WiFi to follow.
+      hotspot`** — the car is genuinely AP-only and the phone must rejoin 2WD1MCar_WiFi to follow.
 - [ ] **U-92-3 — the placeholder shows the truth.** The dropdown's first row reads
       `Now on: <network>` and follows every switch (own hotspot ↔ router); it is never a stale
       static "Select router".
-- [ ] **U-92-4 — refusals hold.** `ROUTERS;ADD;4WD4MCar_WiFi;x` → one `ROUTERS;ERROR;Reserved`;
-      `WIFICFG;4WD4MCar_WiFi;x` → one `WIFICFG;ERROR;Reserved`; a save via "Add router…" now
+- [ ] **U-92-4 — refusals hold.** `ROUTERS;ADD;2WD1MCar_WiFi;x` → one `ROUTERS;ERROR;Reserved`;
+      `WIFICFG;2WD1MCar_WiFi;x` → one `WIFICFG;ERROR;Reserved`; a save via "Add router…" now
       shows `Saved on the car: <ssid>` (the STORED reply is parsed at last).
 
 ## U-90 round — stuck-router fix + selectable coming-soon modes (2026-10-04, firmware 1.0.4 — DEVICE VERIFY PENDING)
@@ -840,14 +840,14 @@ owner's — the order and capture commands are in `TRACKS/RUNSHEET.md`.
       through exactly ONE rejoin sequence and reports `ROUTERS;USED;<ssid>` once (it used to
       drive two full rejoins — and USE also drove the app's router-switch prompt from U-80).
 - [ ] **U-87-1 — idle: the beacon is up.** Car joined to a router, NO client anywhere:
-      serial `Own AP active: 4WD4MCar_WiFi`, no `[POWER] … parked` line, and 4WD4MCar_WiFi visible in
+      serial `Own AP active: 2WD1MCar_WiFi`, no `[POWER] … parked` line, and 2WD1MCar_WiFi visible in
       a phone scan. (Bench-proven after the U-87 correction; here for the owner's eyes.)
 - [ ] **U-87-2 — in use: the beacon parks.** A client connected over WiFi for >20 s:
       serial `[POWER] router up - car hotspot beacon parked`, and the page KEEPS serving on the
       router's address (it is a beacon, not the web server). **STILL UNVERIFIED ON HARDWARE** —
       the bench could never reach the network the car's router was on.
 - [ ] **U-87-3 — drop: the beacon comes straight back.** Disconnect the last client (or lose the
-      router association entirely): 4WD4MCar_WiFi returns on its own. There must be NO state where
+      router association entirely): 2WD1MCar_WiFi returns on its own. There must be NO state where
       the car believes the beacon is down while it is up, and no state with no way in.
 - [ ] **U-87-4 — the first U-87 stays dead.** Boot the car onto a router the phone is NOT on,
       with no client: the beacon must STAY UP (idle = reachable, always). The pre-correction
@@ -865,7 +865,7 @@ owner's — the order and capture commands are in `TRACKS/RUNSHEET.md`.
       never appear again).
 - [ ] **U-79-2 — one Wi-Fi setup.** Sending `ESP_SER` / `ESP_CLI` (webpage console or BT) gets a
       `NACK;E=UNKNOWN_MODE` and the car STAYS in 4WD4M.
-- [ ] **U-79-3 — power policy, idle.** Car with no client: Bluetooth advertising AND 4WD4MCar_WiFi
+- [ ] **U-79-3 — power policy, idle.** Car with no client: Bluetooth advertising AND 2WD1MCar_WiFi
       up simultaneously (BT visible on the phone; hotspot visible in WiFi scan).
 - [ ] **U-79-4 — power policy, one client.** Connect the app over WiFi → serial
       `[POWER] Bluetooth off - web client active` and BT disappears from the phone's scan.
@@ -876,7 +876,7 @@ owner's — the order and capture commands are in `TRACKS/RUNSHEET.md`.
       `[WIFICFG] boot: will try last-good router "…"` and it rejoins. Last session on BT +
       power-cycle → `[BOOT] Last used: Bluetooth - staying on hotspot + BT` and NO router hop.
 - [ ] **U-79-7 — router fallback of last resort.** Router OFF + power-cycle → back on
-      4WD4MCar_WiFi within seconds (one 6 s window, U-71 semantics unchanged).
+      2WD1MCar_WiFi within seconds (one 6 s window, U-71 semantics unchanged).
 - [ ] **U-79-8 — page: speed slider drag-safe.** Drag the slider SLOWLY for >1 s — the thumb
       never jumps back mid-drag; on release the value sticks (the 1 s status sync must not
       fight the finger).
@@ -945,7 +945,7 @@ holds: no FIN-36 release tag and no sign-off until these are PASS on hardware.
 - [ ] Wheels stop moving at `SPD0`/`S` the instant the command is sent — no lag introduced by the
       extra translation hop.
 
-### T12 — the SAME envelopes over the car's WebSocket (AP `4WD4MCar_WiFi`, ws :81)
+### T12 — the SAME envelopes over the car's WebSocket (AP `2WD1MCar_WiFi`, ws :81)
 
 - [ ] Repeat T11's full list over WS. Every row behaves identically to BT — **the envelope must not
       care which link carries it** (that is the whole premise of the additive form).
@@ -1168,7 +1168,7 @@ Verdict: **RC-PENDING** — not flashed.
 
 - [ ] T1 — BT pair to `4WD CAR` (PIN 1234) from the app; drive F/B/L/R/S
 - [ ] T2 — median command round-trip over BT (10 × `SPD150` → STATE echo), recorded ms
-- [ ] T3 — phone joins AP `4WD4MCar_WiFi`; HTTP :80 page loads; WS drive works (4WD4M, no mode switch)
+- [ ] T3 — phone joins AP `2WD1MCar_WiFi`; HTTP :80 page loads; WS drive works (4WD4M, no mode switch)
       — **app half UNBLOCKED 2026-09-28:** the manifest fix shipped in **app 3.2.7/60**
       (`5c99357`, release run `36436791172`) and was verified with `aapt` **in the published APK**
       (all four Wi-Fi permissions, `NEARBY_WIFI_DEVICES` + `neverForLocation`,
@@ -1207,9 +1207,9 @@ Pre-flight:
       ```
       [BOOT] Restored mode=ESP_SER is retired (CS) in v2 - keeping 4WD4M.
       [BOOT] Restored speed=255
-      Own AP active: 4WD4MCar_WiFi
+      Own AP active: 2WD1MCar_WiFi
       Stored router available - join via ROUTERS;USE / WIFICFG (own AP stays default)
-      [V2] Web layer always-on: AP=4WD4MCar_WiFi ip=192.168.245.1 http=:80 ws=:81
+      [V2] Web layer always-on: AP=2WD1MCar_WiFi ip=192.168.245.1 http=:80 ws=:81
       ```
       The retired-mode guard fired exactly as designed (donor NVS held mode=SERVER from the
       WIRELESS firmware; v2 kept 4WD4M). Splash itself renders on the OLED (owner eyeballs it).
@@ -1217,7 +1217,7 @@ Pre-flight:
 Rows (rows 1–10 carried into the v1.0.1 round above; this v1.0.0 round is closed at T0):
 - [ ] T1 — BT pair to `4WD CAR` (PIN 1234) from the app; drive F/B/L/R/S
 - [ ] T2 — median command round-trip over BT (10 × `SPD150` → STATE echo), recorded ms
-- [ ] T3 — phone joins AP `4WD4MCar_WiFi`; HTTP :80 page loads; WS drive works (4WD4M, no mode switch)
+- [ ] T3 — phone joins AP `2WD1MCar_WiFi`; HTTP :80 page loads; WS drive works (4WD4M, no mode switch)
       — **app half UNBLOCKED 2026-09-28:** the manifest fix shipped in **app 3.2.7/60**
       (`5c99357`, release run `36436791172`) and was verified with `aapt` **in the published APK**
       (all four Wi-Fi permissions, `NEARBY_WIFI_DEVICES` + `neverForLocation`,
@@ -1378,7 +1378,7 @@ Automated over `ws://192.168.1.100:81/` � **12/12 passed**:
 |---|---|---|
 | U81-1 | `CAPS;` frame arrives over WiFi | PASS � `CAPS;4WD4M:LIVE;PATH:CS;OBS_US:CS;OBS_IR:CS;MAN:CS;AUTO:CS;2WD1M:CS` |
 | U81-2 | `STATE;` frame arrives over WiFi | PASS � `STATE;MODE=4WD4M;SPD=230;TRIM=0;STATUS=Stopped;SSID=nijandangal_2.4;�` |
-| U81-3 | saved routers listed | PASS � `NETW;4WD4MCar_WiFi;Esp;nijandangal_2.4` |
+| U81-3 | saved routers listed | PASS � `NETW;2WD1MCar_WiFi;Esp;nijandangal_2.4` |
 | U81-4 | telemetry JSON complete | PASS � `mode=4WD4M spd=230 rssi=-57 ip=192.168.1.100` |
 | F-62 | refuses a mode this car dropped | PASS � `NACK;E=UNKNOWN_MODE;ARG=ESP_SER` |
 | F-62 | refuses an unknown command | PASS � `NACK;E=UNKNOWN_MODE;ARG=NOT_A_COMMAND` |
@@ -1453,7 +1453,7 @@ The suite now double-reads after every switch and gives refusals a 4.5 s window.
 
 ### Still needs the owner (cannot be automated here)
 
-- [ ] **U87-5** � confirm `4WD4MCar_WiFi` actually disappears from a PHONE's Wi-Fi
+- [ ] **U87-5** � confirm `2WD1MCar_WiFi` actually disappears from a PHONE's Wi-Fi
       list while parked and reappears after. The car says it did; only a radio can
       confirm the beacon is really gone from the air.
 - [ ] **U81-5/6** � Bluetooth SPP: a refused mode must be visible on the phone.

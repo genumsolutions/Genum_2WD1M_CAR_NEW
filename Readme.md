@@ -1,4 +1,4 @@
-Version 1.3.19
+Version 2.0.0
 
 # 2WD1M Car — Genum_2WD1M_CAR_NEW (v2 fleet reference design)
 
@@ -17,7 +17,7 @@ no donor tags** (fresh git history, owner ruling R-2). The donor repo remains un
 
 | Item | Value |
 |---|---|
-| Bluetooth SPP name | **`2WD1M Car`** (PIN 1234) — `Config.h` `BT_SPP_NAME` (U-110 rename so the phone list, the OLED and the app match; re-pair once after the change) |
+| Bluetooth SPP name | **`2WD1M Car`** (PIN 1234) — `Config.h` `BT_SPP_NAME` (U-110: the phone list, the OLED and the app must all show this exact mixed-case name; re-pair once after a rename) |
 | Wi-Fi AP SSID | **`2WD1MCar_WiFi`** (open) — `Config.h` `WIFI_AP_NAME` (1.3.5: the ONE own-hotspot name; donor `WirelessCar_Wifi` and older `4WDCar_Wifi` fully removed) |
 | AP subnet | **192.168.245.1/24** (NOT 192.168.4.x — phone-side subnet collision is a proven past bug; the .244 subnet belongs to the WIRELESS car so two cars can coexist) |
 | FW_NAME / FW_VERSION | `2WD1M Car` / `2.0.0` — `Config.h` |
@@ -25,7 +25,7 @@ no donor tags** (fresh git history, owner ruling R-2). The donor repo remains un
 ## 3. Modes (fleet 9-token registry + CAPS)
 
 Every LIVE token stays selectable and is announced via
-`CAPS;4WD4M:LIVE;PATH:CS;OBS_US:CS;OBS_IR:CS;MAN:CS;AUTO:CS;2WD1M:CS` (device order, no trailing
+`CAPS;4WD4M:CS;PATH:CS;OBS_US:CS;OBS_IR:CS;MAN:CS;AUTO:CS;2WD1M:LIVE` (device order, no trailing
 `;`). Since U-79 (1.0.3) `ESP_SER`/`ESP_CLI` are DELETED from the registry: the correct CAPS
 expectation is their **ABSENCE** — never `CS`, never `WIP` (see the rewritten T10 in
 TRACKS/DEVICE-TESTS.md).
@@ -46,25 +46,26 @@ Legacy alias `BT`/`BLUETOOTH` → 4WD4M still accepted (fleet convention).
 - **Wi-Fi is an always-on connection/setup channel, never a mode**: AP WebServer + WebSocket
   run from boot (non-blocking) regardless of active mode; STA joins stored routers with
   auto-rejoin. **(Shipped — Phase 1 landed; see TRACKS/TODO.md P1-2.)**
-- **Drive over both transports in 4WD4M** — the donor's rule "Wi-Fi drive happens in ESP_SER"
+- **Drive over both transports in 2WD1M** — the donor's rule "Wi-Fi drive happens in ESP_SER"
   is retired here. Same line protocol (`\n`-terminated), same `handleCommand()` funnel, same
   `STATE`/`CAPS`/`NACK`/`NETW` responses, JSON-over-WS telemetry kept.
 - **Setup over both transports**: `WIFICFG;<ssid>;<pass>` + `ROUTERS;ADD|USE|DEL|CLEAR`
   (max 6 routers, NVS `botcfg`) work over Bluetooth **and** over the AP WebSocket.
-- Phase 1 of `guide/PLAN-2026-09-28-4WD4M-CAR-REFERENCE-DESIGN.md` **has landed** — the
-  always-on web layer, dual-transport drive and dual-transport provisioning are live behavior.
+- Phase 1 of the donor reference design **has landed** — the always-on web layer,
+  dual-transport drive and dual-transport provisioning are live behavior. (That plan document
+  is not in this repo; `TRACKS/` is the surviving record.)
 
 ## 5. Materials / Pins / Libraries
-Same bill of materials and wiring as the donor hardware (the 4WD4M testbed IS the former
-WIRELESS-car hardware refit): ESP32 DevKit, L298N (4 × brushed motors, skid-steer), 1.3" SH1106
-OLED (I2C), Li-ion pack. Pins in `Config.h`. Libraries: WebSockets 2.7.2, U8g2, ESP32 core
-3.3.11 (WebServer/BluetoothSerial/Preferences ship with the core).
+ESP32 DevKit, L298N driving **2 brushed motors** (differential drive), one steering servo on
+D27 (LEDC timer 1 — see `SteeringServo.cpp`), 1.3" SH1106 OLED (I2C), Li-ion pack. Pins in
+`Config.h`. Libraries: WebSockets 2.7.2, U8g2, ESP32 core **3.3.12** (the CI pin; the sketch
+also builds on core 4.x — `BluetoothComm::begin()` version-guards the SPP bring-up).
 
 ## 6. Build Metadata
 
 | Item | Value |
 |---|---|
-| Board | ESP32 Dev Module (`esp32:esp32:esp32`, core 3.3.11) |
+| Board | ESP32 Dev Module (`esp32:esp32:esp32`, core 3.3.12 — CI pin) |
 | Partition | **`huge_app` REQUIRED** (same as donor) |
 | Flash baud | 115200 |
 | Baseline build | donor 1.8.4 measured 1,740,754 B (55%) / RAM 69,492 B (21%) — current figures reported by the CI compile gate |
@@ -73,10 +74,10 @@ OLED (I2C), Li-ion pack. Pins in `Config.h`. Libraries: WebSockets 2.7.2, U8g2, 
 | CI | `.github/workflows/arduino-ci.yml` — compile gate + deltas report, secrets-free |
 
 ## 7. Modules
-Identical file set to the donor 1.8.4 (renamed): `Genum_4WD4M_CAR.ino` (entry, boot splash,
+File set (donor 1.8.4 layout, re-identified): `Genum_2WD1M_CAR_NEW.ino` (entry, boot splash,
 watchdog) · `Config.h` (identity/pins/constants) · `ModeManager` (registry, gating, failsafe,
 STATE) · `BluetoothComm` (SPP transport) · `WebServerComm` (AP/STA + HTTP/WS + provisioning) ·
-`L298NControl`/`MotorControl`/`TwoWD1M` (drive) · `Oled_1_3`/`OledDisplay` (UI, see
+`L298NControl`/`MotorControl`/`TwoWD1M`/`SteeringServo` (drive + steering) · `Oled_1_3`/`OledDisplay` (UI, see
 `storyboard.md`) · `ParamsStore` (NVS) · `secrets.h.example` (template — `secrets.h` is
 gitignored, never committed; the sketch compiles without it).
 

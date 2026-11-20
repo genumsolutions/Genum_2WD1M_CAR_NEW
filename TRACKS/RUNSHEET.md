@@ -18,7 +18,7 @@ The car is on **1.3.11** already; 1.3.12 through 1.3.19 all ride this flash:
 | **U-124 ⑫ (1.3.18)** | **The turned-off page finally says so.** With the Webpage toggle OFF a browser got `Content-Length: 0` and the body past it — a **white screen**; the "The car's web page is turned off" message never rendered. One line (`setContentLength(len)` before the same `send`) — row **U-124-⑫**; the app's half (page/Wi-Fi state and IP visibility) is app row **U-124-5/6** |
 | **U-121 E2 (1.3.17)** | **Connecting the Wi-Fi FROM THE APP never resets the car** — the owner's *"resets again and again whenever i try to connect the wifi"*. The switch machines' `WiFi.mode()`/`WiFi.begin()` steps now sit on the same 32000 B floor the retry defers on: below it the step is deferred with the radio untouched (`[RADIO] step deferred: low heap`), and after 4 s the switch is **abandoned honestly** (`[RADIO] switch abandoned: low heap`) rather than run into a starved heap — row **U-121-E2** |
 | **U-121 E (1.3.16)** | **The BT-on + Wi-Fi-drop retry stops churning.** Below the floor the retry is deferred with the capped budget and backoff untouched (`[REJOIN] retry deferred: low heap`), resuming the pass Bluetooth goes away — row **U-121-E** |
-| **Q1 (1.3.15)** | **The boot-hop is stopped.** Power-up stays on `4WD4MCar_WiFi` (`;AUTOJOIN=OFF`, serial `boot auto-join disabled - staying on own hotspot`); only the APP's smart-link joins a router. Opt back in with `WIFICFG;AUTOJOIN;ON` — rows Q1-1/Q1-2 in `DEVICE-TESTS.md` |
+| **Q1 (1.3.15)** | **The boot-hop is stopped.** Power-up stays on `2WD1MCar_WiFi` (`;AUTOJOIN=OFF`, serial `boot auto-join disabled - staying on own hotspot`); only the APP's smart-link joins a router. Opt back in with `WIFICFG;AUTOJOIN;ON` — rows Q1-1/Q1-2 in `DEVICE-TESTS.md` |
 | **U-120 B (1.3.15)** | **The Webpage toggle actually works.** The app's `WIFICFG;WIFI;PAGE;…` used to be swallowed by the earlier `;WIFI` branch (always `ERROR;Syntax`, so the switch snapped back to ON) — fixed; row **U-120-B** in `DEVICE-TESTS.md` |
 | **U-117 (1.3.14)** | **The webpage state is on every surface.** STATE carries `;PAGE=ON|OFF` (Bluetooth-only apps finally read it), `/status` keeps `page_on`, and a turned-OFF page stays OFF across a power cycle — the "toggle not working" report had one car half and one app half, and both are in this flash |
 | **P4 / item F (1.3.13)** | **The car REFUSES a second link it cannot afford.** Both links normally come up as before; under the old freeze window the second raise is held back, the incumbent keeps working, and `;LINKCAP=0` / `"link_cap":0` say why (serial: `[LINKCAP] …`) |
@@ -65,8 +65,8 @@ Capture the first boot while you are at it (~15 s, resets the board):
     python tools/serial_capture.py COM<port> 15 boot-1.3.19.log
 
 **Expect in that log:** `[BOOT] Restored mode=4WD4M`, the router-wipe line
-(version change), `Own AP active: 4WD4MCar_WiFi`, and
-`[V2] Web layer always-on: AP=4WD4MCar_WiFi ip=192.168.245.1 http=:80 ws=:81`
+(version change), `Own AP active: 2WD1MCar_WiFi`, and
+`[V2] Web layer always-on: AP=2WD1MCar_WiFi ip=192.168.245.1 http=:80 ws=:81`
 — **`AP=` must NOT be empty** (that was U-109's bug). No
 `[RADIO] skip-softAP/sta-busy`, no `[RELAY]` lines. The boot probe runs here too
 (Step 6).
@@ -84,7 +84,7 @@ the APK is separately uploaded.
 
 1. Android Settings → Bluetooth → **forget the old `4WD CAR` bond** (that name
    is dead — the firmware no longer advertises it).
-2. In the app, scan → pair to **`4WD4M Car`**. **No PIN is asked**; if one is
+2. In the app, scan → pair to **`2WD1M Car`**. **No PIN is asked**; if one is
    ever requested it is `1234`.
 3. The bond completes and the app's Bluetooth link opens.
 
@@ -93,12 +93,12 @@ the APK is separately uploaded.
 
 ## 4 · Own hotspot: forget, re-join, read /status
 
-Android caches a stale profile against an open AP — forget `4WD4MCar_WiFi`
+Android caches a stale profile against an open AP — forget `2WD1MCar_WiFi`
 once, re-join. Expect an `192.168.245.x` address, then open:
 
     http://192.168.245.1/status
 
-Check `ap` = `4WD4MCar_WiFi` (**never empty**), `fw` = `1.3.17`, and the crash
+Check `ap` = `2WD1MCar_WiFi` (**never empty**), `fw` = `1.3.17`, and the crash
 fields (`crash_count`, `reset_reason`, the phase). Also check `tele_params` reads
 `freq=1600, vyse=0` (U-114) and that `wifi_enabled`/`bt_enabled`/`boot_autojoin`
 report your actual toggles, not `1600`/`0`. The page's mode dropdown and
@@ -116,7 +116,7 @@ switch rows: `python tools/bench_u90_u92.py <car-ip>`.
 
 - **U-115-1 — ⭐ the own hotspot is joinable the second it appears (router ABSENT).**
   Switch the saved router OFF (or move the car out of range), then cold-boot. The
-  phone's Wi-Fi scan sees `4WD4MCar_WiFi` and a **join completes within seconds** —
+  phone's Wi-Fi scan sees `2WD1MCar_WiFi` and a **join completes within seconds** —
   no "detected but won't connect", no waiting for a Bluetooth-off moment. Serial
   shows the boot reachability probe and then **no rejoin churn** (the car stays
   AP-only because the router was absent).
@@ -148,7 +148,7 @@ that the app cannot answer are here.
 - **U-113-9 — ⭐ issue 7: Wi-Fi OFF hides everything** — see Step 8b (E3).
 - **U-113-10 — issue 9: the page is up with NO app attached** — see Step 8b (E4).
 - **U-113-11 — issue 7b: both ON ⇒ both offered.** With both toggles ON and no
-  client attached: hotspot visible, page browsable, `4WD4M Car` advertising — all
+  client attached: hotspot visible, page browsable, `2WD1M Car` advertising — all
   at once.
 - **U-113-15 — ⭐ issue 8: a setting changed on ONE surface survives every restart.**
   Change a setting on the app OR the car (mode / speed / router / toggle), then
@@ -181,7 +181,7 @@ and the deltas `boot → bt-stack` and `wifi-ap → both-links` (`max` collapsin
 - **E3 — issue 7: OFF hides everything.** With BT ON, send `WIFICFG;WIFI;OFF` (app
   Connectivity panel, or the page console) and keep the phone's Wi-Fi scan open.
   Capture for ~60 s: `python tools/serial_capture.py COM<port> 60 e3-wifi-off.log`
-  Within a few seconds the scan must stop listing `4WD4MCar_WiFi` and
+  Within a few seconds the scan must stop listing `2WD1MCar_WiFi` and
   `http://192.168.245.1` must become unreachable. **Leave it OFF ≥ 1 min and
   re-scan**: the SSID must NOT come back. `WIFICFG;WIFI;ON` brings everything back.
 - **E4 — issue 9: the page with nobody attached.** Wi-Fi ON and the **app closed**.

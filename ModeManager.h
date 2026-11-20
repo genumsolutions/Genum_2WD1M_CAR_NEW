@@ -160,10 +160,12 @@ public:
   bool isCurrentModeStub() const { return registryFor(currentMode_).isStub(); }
 
   /** Fleet availability map for clients, built from MODE_REGISTRY in device
-   *  order — e.g. "4WD4M:LIVE;PATH:CS;…;2WD1M:CS". Sent on STATE lines as
+   *  order — for THIS project: "4WD4M:CS;PATH:CS;…;2WD1M:LIVE" (2WD1M is the
+   *  live mode; 4WD4M is the retained CS alias). Sent on STATE lines as
    *  CAPS;... and in WS JSON "caps".
    *  The example previously shown here read "4WD4M:LIVE;ESP_SER:LIVE;…", which
-   *  this car cannot emit: ESP_SER was removed from the registry in U-79.
+   *  this car cannot emit: ESP_SER was removed from the registry in U-79 and
+   *  4WD4M is not the live mode here.
    *  TRACKS/GUIDE.md documents the corrected CAPS line. */
 void buildCapsMap(char* buf, size_t bufLen) const;
 
