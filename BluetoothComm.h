@@ -1,7 +1,7 @@
 #pragma once
 
 // =====================================================================
-// Genum_4WD4M_CAR — multimode 4WD4M car firmware (ESP32 + L298N)
+// Genum_2WD1M_CAR_NEW — multimode 2WD1M car firmware (ESP32 + L298N + servo)
 // File: BluetoothComm.h — Bluetooth SPP transport (pure transport; T-1);
 //       restart() feeds the T-7b hard-restart watchdog
 // Property of GENUM SOLUTIONS PVT. LTD.

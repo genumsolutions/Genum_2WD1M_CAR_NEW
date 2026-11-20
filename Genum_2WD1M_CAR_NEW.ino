@@ -1,6 +1,6 @@
 // =====================================================================
-// Genum_4WD4M_CAR — multimode 4WD4M car firmware (ESP32 + L298N)
-// File: Genum_4WD4M_CAR.ino — entry point: boot, boot splash, watchdog,
+// Genum_2WD1M_CAR_NEW — multimode 2WD1M car firmware (ESP32 + L298N + servo)
+// File: Genum_2WD1M_CAR_NEW.ino — entry point: boot, boot splash, watchdog,
 //       mode-switch wiring (BT ↔ SERVER)
 // Property of GENUM SOLUTIONS PVT. LTD.
 //
@@ -238,15 +238,16 @@ void setup() {
   // rejoins the user's router, not the default.
   webServerComm.loadStoredWifi();
   // T-13: restore the last mode + speed from NVS (validated + clamped in
-  // applyBootState). v2: mode is a DRIVE concept only (4WD4M is the single
-  // live mode); the web layer below is started unconditionally BEFORE this
+  // applyBootState). v2: mode is a DRIVE concept only (2WD1M is the single
+  // live mode here; 4WD4M survives as a CS alias); the web layer below is
+  // started unconditionally BEFORE this
   // so the car is always reachable. The donor's restored-SERVER special case
   // is gone — no mode implies a transport anymore.
   // v1.4.0 provisioning: WIFICFG lines (app → BT) are intercepted before any
   // other command path, in every mode. Replies ride STATE as REPLY=….
   // T-48 (round-5): ROUTERS;… registry commands ride the SAME hook (single
   // system-command entry point — FAILSAFE W-14/F-21).
-  // v2: WIFICFG NO LONGER SWITCHES MODE — the car stays in 4WD4M; the web
+  // v2: WIFICFG NO LONGER SWITCHES MODE — the car stays in 2WD1M; the web
   // layer rejoins the new network while every transport stays live.
   modeManager.setSystemCommandHook([](const char* cmd) -> bool {
     const bool isRouterCmd = webServerComm.handleRouterCommand(cmd);
@@ -392,6 +393,14 @@ static bool ensureBtAdvertising() {
 }
 
 void loop() {
+  // The loop NEVER bails out on low heap. An earlier "aggressive heap guard"
+  // returned here below 16 kB - a threshold above the 13-18 kB this car actually
+  // runs at with both radios up - so the beacons stayed on while nothing consumed
+  // the command path or pumped the sockets: the owner's "connects, then freezes".
+  // The heap floors that remain live INSIDE the operations that allocate
+  // (broadcast deferral, scan refusal, join retry), where refusing is honest and
+  // reversible. Driving and the command path always run.
+  //
   // F-24: feed the loopTask watchdog every iteration.
   esp_task_wdt_reset();
   // U-106: refresh the flash-free crash breadcrumb (free-heap low-water + millis)

@@ -1,5 +1,5 @@
 // =====================================================================
-// Genum_4WD4M_CAR — multimode 4WD4M car firmware (ESP32 + L298N)
+// Genum_2WD1M_CAR_NEW — multimode 2WD1M car firmware (ESP32 + L298N + servo)
 // File: WebServerComm.cpp — web + WebSocket server transport: command
 //       queue bridge, JSON status broadcast, WIFICFG provisioning
 // Property of GENUM SOLUTIONS PVT. LTD.
@@ -600,7 +600,7 @@ void WebServerComm::serveGhostPage() {
   // response, the transport stays up, loop() is never blocked for the
   // F-77 page budget, so BT, WS and the mode ticker keep running.
   static const char ghostHTML[] PROGMEM =
-      "<!doctype html><html><head><meta charset='utf-8'><title>4WD4M Car</title>"
+      "<!doctype html><html><head><meta charset='utf-8'><title>2WD1M Car</title>"
       "<style>body{margin:0;background:#111;color:#eee;font-family:-apple-system,BlinkMacSystemFont,"
       "\"Segoe UI\",Roboto,Arial,sans-serif;height:100vh;display:flex;justify-content:"
       "center;align-items:center;text-align:center}</style></head><body>"
@@ -867,7 +867,7 @@ bool WebServerComm::handleRouterCommand(const char* cmd) {
         (ssidLen == strlen(WIFI_AP_NAME) &&
          strncasecmp(ssid, WIFI_AP_NAME, ssidLen) == 0);
     if (isOwnApName) {
-      // T-66: "USE 4WD4MCar_WiFi" = switch back to the car's own network
+      // T-66: "USE 2WD1MCar_WiFi" = switch back to the car's own network
       // (nothing stored → rejoin to the own AP as the default).
       hasStoredWifi_ = false;
       storedSsid_[0] = '\0';
@@ -1039,7 +1039,7 @@ bool WebServerComm::handleRouterCommand(const char* cmd) {
     }
   } else if (rest[0] == ';' && strncasecmp(rest, ";CLEAR", 6) == 0) {
     // T-62: wipe ALL saved routers + the stored active pair. The car's OWN
-    // network (4WD4MCar_WiFi) is virtual/protected — it is never removed.
+    // network (2WD1MCar_WiFi) is virtual/protected — it is never removed.
     savedRouterCount_ = 0;
     for (int i = 0; i < MAX_SAVED_ROUTERS; ++i) {
       savedRouterSsid_[i][0] = '\0';
@@ -1433,7 +1433,7 @@ size_t WebServerComm::buildScanJson(char* buf, size_t bufLen) const {
 
 // T-49: names-only SPP line — "NETW;<ssid1>;<ssid2>;..." (fed to the remote's
 // SW saved-networks menu). Never contains passwords. T-66: the car's own
-// network (4WD4MCar_WiFi) leads the list first while in webserver mode.
+// network (2WD1MCar_WiFi) leads the list first while in webserver mode.
 void WebServerComm::buildNetworksLine(char* buf, size_t bufLen) {
   if (!buf || bufLen == 0) return;
   strncpy(buf, "NETW", bufLen - 1);
@@ -1527,7 +1527,7 @@ void WebServerComm::startOwnAP() {
   // T-71 (round-11): keep the radio beaconing for the whole webserver session.
   // In WIFI_AP_STA the STA side scans/associates to a saved router; with the
   // default duty-cycling the softAP can blink out right when a phone races to
-  // join `4WD4MCar_WiFi`, which surfaces as Android's intermittent "unable
+  // join `2WD1MCar_WiFi`, which surfaces as Android's intermittent "unable
   // to connect" from the phone's Wi-Fi search/connect menus.
   // setSleep(false) removes those gaps; explicit open-AP params (no password,
   // channel 1 follows the STA router in AP_STA, visible, up to 4 clients) keep
@@ -1604,6 +1604,12 @@ void WebServerComm::startOwnAP() {
   // "the car's own hotspot won't connect").
   WiFi.setTxPower(WIFI_POWER_11dBm);
   apTxPowerLow_ = true;  // handle() raises this once the boot window has passed
+  // CRITICAL: disable WiFi sleep modulation — this prevents beacon gaps that
+  // cause Android 'obtaining IP' timeouts. Without this, the beacon can blink
+  // out right when a phone races to join 2WD1MCar_WiFi, which surfaces as
+  // Android's intermittent 'unable to connect' from the phone's Wi-Fi
+  // search/connect menus.
+  WiFi.setSleep(false);
   const bool apOk = WiFi.softAP(apName.c_str(), /*passphrase=*/nullptr,
                                 apChannel, /*ssid_hidden=*/0,
                                 /*max_connection=*/4);
@@ -1689,7 +1695,7 @@ void WebServerComm::beginAlwaysOn() {
   // mode(WIFI_AP_STA) until the arduino_events task delivers STA_START (fixed at
   // the allow-list in staBusy()) — and forcing the claim true then marked that
   // skipped bring-up as done, so the retry never ran and the car sat with NO own
-  // hotspot for the WHOLE uptime: no phone could join 4WD4MCar_WiFi, and /status
+  // hotspot for the WHOLE uptime: no phone could join 2WD1MCar_WiFi, and /status
   // `ap` stayed empty so the app's discovery sweep could not find it either —
   // "no connection on any method". With the claim left honest, handle() retries
   // the bring-up and the hotspot comes up by itself. `startedAsAP` is owned by
@@ -2174,7 +2180,7 @@ void WebServerComm::advanceRejoinStep() {
         // that one, but switches to other router fine"*): "back to my own
         // hotspot" used to stop HERE — rejoinNetwork() armed nothing
         // (pendingRejoin_ keys on hasStoredWifi_, which T-66 had just
-        // cleared), so the car ANSWERED `ROUTERS;USED;4WD4MCar_WiFi` and then
+        // cleared), so the car ANSWERED `ROUTERS;USED;2WD1MCar_WiFi` and then
         // simply stayed associated to the router. There is no target to
         // begin(), but there IS an association to LEAVE: hand off to the
         // existing one-call-per-pass teardown (disconnect → mode(WIFI_AP) →
@@ -2436,6 +2442,12 @@ void WebServerComm::joinedSsid(char* out, size_t outLen) const {
 
 void WebServerComm::handle() {
   crashRtcMark("web");
+  // No heap bail here. handleClient() and ws.loop() are the ONLY way a Wi-Fi
+  // command reaches the car, and the only way an app/browser WebSocket completes
+  // its handshake - so skipping them below a heap floor does not protect the
+  // run-time, it silently disconnects the transport ("connects, then nothing").
+  // The floor lives inside broadcastStatus(), time-boxed, where a defer costs
+  // cadence and never the link.
   if (serverRunning) server.handleClient();
   // U-95 Phase 1b: a fresh window for the one call here nobody can tune.
   // ws.loop() can sit inside a partial-frame read for up to
@@ -2811,7 +2823,7 @@ int WebServerComm::peek() {
 // threw it away. It is the reason the owner's report was "the new home router
 // is not there".
 //
-// `comm_` IS this object (`Genum_4WD4M_CAR.ino:190` -> `setComm(&webServerComm)`),
+// `comm_` IS this object (`Genum_2WD1M_CAR_NEW.ino:190` -> `setComm(&webServerComm)`),
 // and every text line ModeManager produces goes through here:
 //   ModeManager.cpp:535  STATE;...;REPLY=<the router/wifi answer>
 //   ModeManager.cpp:545  CAPS;...        (the availability map)
@@ -2915,7 +2927,7 @@ void WebServerComm::currentIp(char* buf, size_t bufLen) {
 // the router with no configuration - and, importantly, the advertisement
 // re-publishes itself every time the car changes network, so it is never stale.
 //
-// The hostname is deliberately NOT the AP name: `4WD4MCar_WiFi` contains an
+// The hostname is deliberately NOT the AP name: `2WD1MCar_WiFi` contains an
 // underscore, which is not legal in a strict mDNS hostname. `genum-car` is the
 // documented name (the `mdns` transport placeholder in the app already expects
 // `genum-car.local`).
@@ -3518,6 +3530,8 @@ void WebServerComm::buildStatusJson(char* buf, size_t bufLen) {
   bool conn = modeManager ? modeManager->isConnectedNowPublic() : false;
   char statusWord[24] = "Stopped";
   if (modeManager) modeManager->getStatusWord(statusWord, sizeof(statusWord));
+  // Graceful null-guard: if modeManager is unavailable during early boot,
+  // use defaults so snprintf never dereferences a null pointer.
   char ipStr[32] = "";
   int rssi = 0, pct = 0;
   if (WiFi.status() == WL_CONNECTED) {
@@ -3574,7 +3588,7 @@ void WebServerComm::buildStatusJson(char* buf, size_t bufLen) {
   if (modeManager) modeManager->buildCapsMap(caps, sizeof(caps));
   // v1.4.0 provisioning truth: configured SSID (never the password) and the
   // AP broadcast id — the app deck shows both. T-64: when nothing is stored,
-  // the car's OWN network (4WD4MCar_WiFi) IS the network — the compile-time
+  // the car's OWN network (2WD1MCar_WiFi) IS the network — the compile-time
   // secrets.h fallback is never joined nor named.
   // T66 (round-9) · U-114: the telemetry-parameter surface, surfaced on /status
   // as `tele_params`. `frequency` is the update cadence (Hz) and the shaping
