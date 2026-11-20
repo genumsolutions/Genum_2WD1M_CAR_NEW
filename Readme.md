@@ -58,14 +58,15 @@ Legacy alias `BT`/`BLUETOOTH` → 4WD4M still accepted (fleet convention).
 ## 5. Materials / Pins / Libraries
 ESP32 DevKit, L298N driving **2 brushed motors** (differential drive), one steering servo on
 D27 (LEDC timer 1 — see `SteeringServo.cpp`), 1.3" SH1106 OLED (I2C), Li-ion pack. Pins in
-`Config.h`. Libraries: WebSockets 2.7.2, U8g2, ESP32 core **3.3.12** (the CI pin; the sketch
-also builds on core 4.x — `BluetoothComm::begin()` version-guards the SPP bring-up).
+`Config.h`. Libraries: WebSockets 2.7.2, U8g2, ESP32 core **4.0.0** (the CI pin and the core
+the classic-BT bring-up was written against; `BluetoothComm::begin()` version-guards the SPP
+setup, so the sketch still builds on 3.3.x).
 
 ## 6. Build Metadata
 
 | Item | Value |
 |---|---|
-| Board | ESP32 Dev Module (`esp32:esp32:esp32`, core 3.3.12 — CI pin) |
+| Board | ESP32 Dev Module (`esp32:esp32:esp32`, core 4.0.0 — CI pin) |
 | Partition | **`huge_app` REQUIRED** (same as donor) |
 | Flash baud | 115200 |
 | Baseline build | donor 1.8.4 measured 1,740,754 B (55%) / RAM 69,492 B (21%) — current figures reported by the CI compile gate |
