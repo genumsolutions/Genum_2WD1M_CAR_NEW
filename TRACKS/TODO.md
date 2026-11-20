@@ -1,4 +1,4 @@
-# TODO — Genum_4WD4M_CAR
+# TODO — Genum_2WD1M_CAR_NEW
 
 ## Phase 0 — repo baseline + rename (2026-09-28) — DONE
 - [x] **P0-1** fresh copy from donor 1.8.4 (`d0bf8c0`) via `git archive` — no `.git/`, no

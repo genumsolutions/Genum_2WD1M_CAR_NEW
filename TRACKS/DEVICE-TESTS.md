@@ -1,4 +1,4 @@
-# DEVICE-TESTS — Genum_4WD4M_CAR
+# DEVICE-TESTS — Genum_2WD1M_CAR_NEW
 
 > Owner-at-the-bench sheets. Test order per standing rule: physical remote first — EXCEPT this
 > car, until O-3 (remote pairing update for `2WD1M Car`) lands → app-first for round 1.

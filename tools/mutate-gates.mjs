@@ -158,7 +158,7 @@ function mutate(file, find, repl) {
 const CRASH = "CrashLog.cpp";
 const WSC = "WebServerComm.cpp";
 const WSH = "WebServerComm.h";
-const INO = "Genum_4WD4M_CAR.ino";
+const INO = "Genum_2WD1M_CAR_NEW.ino";
 const MM = "ModeManager.cpp";
 const CL = "CrashLog.cpp";
 const CLH = "CrashLog.h";

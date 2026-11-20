@@ -1,4 +1,4 @@
-# GUIDE — Genum_4WD4M_CAR (how this repo fits the fleet)
+# GUIDE — Genum_2WD1M_CAR_NEW (how this repo fits the fleet)
 
 ## Role
 **Newest fleet reference design (v2 architecture).** Everything the fleet becomes later is

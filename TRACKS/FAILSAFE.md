@@ -1,4 +1,4 @@
-# FAILSAFE — Genum_4WD4M_CAR (do-not-break invariants)
+# FAILSAFE — Genum_2WD1M_CAR_NEW (do-not-break invariants)
 
 Inherited from the donor's hard-won rules. Any change that weakens one needs an explicit owner
 ruling + a ledger note BEFORE the change.
