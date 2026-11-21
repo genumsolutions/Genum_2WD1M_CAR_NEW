@@ -18,7 +18,25 @@ name: Arduino CI — Genum_2WD1M_CAR_NEW
 on:
   push:
     branches: [main]
+    paths:
+      - '**/*.ino'
+      - '**/*.h'
+      - '**/*.cpp'
+      - '**/*.c'
+      - '**/*.json'
+      - '**/*.md'
+      - 'tools/**'
+      - '.github/workflows/arduino-ci.yml'
+      - 'secrets.h.example'
   pull_request:
+    paths:
+      - '**/*.ino'
+      - '**/*.h'
+      - '**/*.cpp'
+      - '**/*.c'
+      - '**/*.json'
+      - 'tools/**'
+      - '.github/workflows/arduino-ci.yml'
   workflow_dispatch:
 
 concurrency:
