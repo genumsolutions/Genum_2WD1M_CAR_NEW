@@ -27,7 +27,7 @@ Clone of `Genum_4WD4M_CAR` (v2 fleet reference) re-purposed as a 2WD1M car:
 - CI run "Cancelled after 4m" on the last push attempt — likely superseded/cancelled run or failed push; re-run via GitHub Actions.
 
 ## Pending work (see guide/SESSION note for full list)
-- Docs/comments still say "4WD4M" in storyboard.md, Readme.md, Config.h banners, ModeManager.h, CATALOG.md, CHANGELOG.md, tools scripts.
+- The 4WD4M references in docs/comments are LEGITIMATE: 4WD4M is a CS (coming-soon) token in this project's mode registry, and BT/BLUETOOTH aliases to it per fleet convention. The SESSION note flagging these as stale was itself incorrect — verified 2026-11-21.
 - App + website do not yet recognize `2WD1M Car` / `2WD1MCar_WiFi` (device registry, dial.ts).
 
 ## Restart recipe
