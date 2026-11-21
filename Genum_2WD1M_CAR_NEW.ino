@@ -3,7 +3,6 @@
 // File: Genum_2WD1M_CAR_NEW.ino — entry point: boot, boot splash, watchdog,
 //       mode-switch wiring (BT ↔ SERVER)
 // Property of GENUM SOLUTIONS PVT. LTD.
-//
 // =====================================================================
 #include <Arduino.h>
 #include "Config.h"
@@ -41,7 +40,6 @@ static unsigned long btLastConnectedOkMs = 0;
 // and switching the car to the home router is EXACTLY that state (the phone
 // leaves BT to follow the car onto the router). So after BT_HARD_RESTART_MS
 // the watchdog tore the stack down, and the old escalation rebooted the car.
-//
 // The discriminator is not time, it is TRANSITION: only a link that was
 // CONNECTED and then dropped can be a fault. A stack that has never had a
 // client since boot is simply unused. Armed on the first real connection and
@@ -97,10 +95,8 @@ void setup() {
   delay(50);
 
   // U-95 / F-79: say WHY the car is booting, and REMEMBER it.
-  //
   // This block used to be a switch that printed a reset reason to the serial
   // line and nothing else. Two separate failures were sitting in it:
-  //
   //  1. The serial line is unreadable in the field. The owner reported "the car
   //     resets again and again" and no cause could be attached, because the
   //     cause was printed at the exact moment of the reset on a wire nobody was
@@ -113,7 +109,6 @@ void setup() {
   //     So ESP_RST_TASK_WDT could never be printed, and the one line that would
   //     have identified a hung loop() always read "crash" instead. That is how a
   //     watchdog starvation turned into a week of "why does it reset".
-  //
   // crashLogBegin() fixes both: the reason is mapped in ONE place (two
   // independent mappers of the same enum is exactly the shape that lets one of
   // them go stale - F-82), the record is persisted, and it counts boots, so a
@@ -149,7 +144,6 @@ void setup() {
   // WebSockets library's untunable 5 s read / 5-8 s write fit strictly under
   // it now, each fed immediately before it runs); normal loop work can never
   // starve an idle task.
-  //
   // U-95/F-79: .trigger_panic = false. This is the fix for the unreachable
   // label described above. With panic escalation on, a starved loop() is
   // reported as ESP_RST_PANIC and is indistinguishable from a real crash, so
@@ -176,9 +170,7 @@ void setup() {
 
   // U-96 (CORRECTED): brownout threshold — there is nothing to set here, and
   // the earlier attempt to set it was doubly wrong.
-  //
   // The two mistakes this replaces, both of which cost a broken build:
-  //
   //  1. THE REGISTER IS NOT REACHABLE. It used to be written directly as
   //     RTC_CNTL_BROWN_OUT_DET_LVL_SEL_REG. On core 3.3.x there is no such
   //     symbol anywhere — grepping all of esp32-libs finds no DET_LVL register
@@ -188,21 +180,18 @@ void setup() {
   //     core. The first fix swapped the old name for CONFIG_BROWNOUT_
   //     DET_LVL_SEL_REG, which is simply the Kconfig symbol misread as a
   //     register — it is not one, and it does not exist either.
-  //
   //  2. THE INTENT WAS BACKWARDS. The old comment claimed "0 = 2.69V,
   //     1 = 2.42V (default 1)" and wrote 0 to "raise" it. IDF's actual table
   //     runs the other way: SEL_0 is the LOWEST of the eight levels (~2.43V)
   //     and SEL_7 the highest (~2.80V). Writing 0 would have LOWERED the
   //     threshold. So the change was not merely impossible, it was aimed the
   //     wrong way round.
-  //
   // The good news is that the mitigation is already in effect: the prebuilt
   // core ships CONFIG_ESP_BROWNOUT_DET_LVL_SEL_0 — i.e. level 0, the LOWEST
   // and therefore most tolerant setting available. The brief WiFi AP+STA init
   // spike does not fake a brownout on this build. The compile-time guard below
   // pins that fact so a future core bump that changes the default fails the
   // BUILD rather than silently reintroducing spurious resets.
-  //
   // This is still mitigation, not a cure. If the supply cannot sustain 3.3V
   // under load the car WILL brownout — that is hardware, and the owner has to
   // fix the power source. See FAILSAFE.md.
@@ -393,25 +382,21 @@ static bool ensureBtAdvertising() {
 }
 
 // U-129 (owner 2026-11-21): EXCLUSIVE LINK OWNERSHIP.
-//
 // The owner's rule, verbatim: *"at first boot show both network open for the
 // connection and when one gets connected turn off the other method… and both
 // open up once the car is disconnected"*. So the two transports are OFFERED
 // together but SERVED one at a time, and the model treats them as two methods
 // rather than one radio:
-//
 //   offer state   both up, nobody connected   (heap ~21.7 kB — the window the
 //                 measured both-links floor describes, now only transient)
 //   Wi-Fi owner   a station joined the own AP, or a WS client is driving the
 //                 car — Bluetooth is stopped  (heap ~123 kB)
 //   BT owner      an SPP client is attached — the own AP is parked
 //                 (heap ~81 kB)
-//
 // Tie-break, deliberately and only one way: if BOTH are live in the same pass,
 // Wi-Fi keeps the link. It is the cheaper survivor (123 kB vs 81 kB left), it is
 // the link with a UI that can explain itself (the page), and it is the one whose
 // teardown is free (BluetoothSerial::end() does not touch the Wi-Fi driver).
-//
 // Parking is NOT the owner's transport OFF: no setting is persisted, `webUp`
 // stays true, and the park ends by itself `LINK_OWNER_HOLD_MS` after the last
 // client goes away. The hold exists because a phone drops its link for a second
@@ -511,7 +496,6 @@ void loop() {
   // The heap floors that remain live INSIDE the operations that allocate
   // (broadcast deferral, scan refusal, join retry), where refusing is honest and
   // reversible. Driving and the command path always run.
-  //
   // F-24: feed the loopTask watchdog every iteration.
   esp_task_wdt_reset();
   // U-106: refresh the flash-free crash breadcrumb (free-heap low-water + millis)
