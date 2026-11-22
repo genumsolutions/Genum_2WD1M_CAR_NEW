@@ -3,13 +3,68 @@
 > Owner-at-the-bench sheets. Test order per standing rule: physical remote first — EXCEPT this
 > car, until O-3 (remote pairing update for `2WD1M Car`) lands → app-first for round 1.
 
-## Unreleased boot-policy check (based on **1.3.19** — DEVICE VERIFY PENDING)
+## 2026-11-23 round — U-128: remembered steering, trim and servo (flash **2.0.0** — DEVICE VERIFY PENDING)
+
+> 2WD1M-only coverage, written 2026-11-23 and source-traced against this repo's
+> `main`. It exercises the steering servo and the NVS keys this firmware really
+> persists (`trim`, `steerlimit` — `ModeManager.cpp` loads both at boot), plus the
+> router switch. Nothing below is device-verified (F-61). Remember the version
+> change wipes the saved router first.
+
+- [ ] **U-128-1 — ⭐ trim survives a power cycle AND visibly moves the wheels.**
+      Send `TRIM5`, confirm `STATE;…;TRIM=5` and the reply text, then power-cycle
+      the car and reconnect: `;TRIM=` still reads 5 and the steering rests visibly
+      off-centre by that offset. `TRIPRESET` clears the trip counters and leaves
+      the trim alone.
+- [ ] **U-128-2 — the steer limit survives a power cycle and clamps.**
+      Send `STEER30`, power-cycle, confirm it persists, then send `SERVO170`: the
+      servo travels only to centre+30, not to 170. Send `STEER200` and `STEER0`
+      and confirm they clamp to `STEER_LIMIT_MIN..MAX` (10..90) instead of
+      erroring.
+- [ ] **U-128-3 — the servo is real, centred, and trimmed the documented way.**
+      `SERVO90` centres the wheels; `SERVO0` and `SERVO180` reach both ends as far
+      as the limit allows. With a positive trim the centre shifts toward the
+      smaller angle (the protocol's "trim + = pulls left"). Confirm the horn
+      actually moves on D27 — this is the 2WD1M's distinguishing hardware.
+- [ ] **U-128-4 — `S` centres the servo as well as cutting throttle.** Turn fully,
+      send `S`: throttle zero, wheels snap back to centre, OLED `Stopped`, and no
+      `NACK` for the bare `S`.
+- [ ] **U-128-5 — ⚠ failsafe stops the motors but does NOT re-centre (expected
+      from the code).** Drive with the wheels turned, then send nothing for 2 s:
+      the motors stop and the OLED reads `Failsafe Stop` with `crash_count`
+      unchanged, but the servo holds its last angle. `SteeringServo.h` says
+      `center()` runs "on failsafe" while `ModeManager::run()` only calls
+      `motor_->drive(Action::STOP)` — record whether the wheels re-centre; either
+      answer is the finding.
+- [ ] **U-128-6 — signed speed drives both directions.** `SPD120` forward,
+      `SPD-120` reverse, `SPD0` stop; the echoed magnitude matches and the
+      direction follows the sign.
+- [ ] **U-128-7 — a Bluetooth-provisioned car actually joins the router.**
+      Wi-Fi ON with Bluetooth linked (page may be OFF) → save or pick a router:
+      the car leaves its own hotspot and joins it (`;SSID=` updates, `joined`),
+      rather than merely storing the name. Save two routers and switch twice —
+      each switch lands on the requested network.
+
+## Not implemented — do NOT test these yet
+
+> Re-checked 2026-11-23 against `main`. Both were described in
+> `genumsolutions-app/docs/BENCH-2026-11-19.md`.
+
+- **Project identity on the wire.** There is no `FW_PROJECT` here, so `/status`
+  carries no `"project"` field and STATE carries no `;PROJ=`. The app's
+  `projectId` stays unknown and it falls back to name grouping.
+- **Per-car telemetry memory.** The car sends live values only; remembering the
+  last telemetry per device is app-side persistence, so it cannot be verified
+  from this firmware.
+
+## Unreleased boot-policy check (based on **2.0.0** — DEVICE VERIFY PENDING)
 
 > Source-level fix only: setup now honors the persisted transport toggles before
 > starting either radio, gates Bluetooth when it would be the second link, and
 > does not pump the stopped web layer in Bluetooth-only mode. Protocol and
-> fail-safe behavior are unchanged. The firmware version remains 1.3.19 to
-> avoid triggering the existing fresh-version NVS wipe.
+> fail-safe behavior are unchanged. `Config.h` is at **2.0.0**, so the first boot
+> after flashing is a version change and wipes the saved routers + transport
+> toggles — expected; re-add them per RUNSHEET Step 5.
 
 - [ ] **U-126-1 — Bluetooth-only boot stays Bluetooth-only.** Set Wi-Fi OFF and
       Bluetooth ON, power-cycle, and verify Bluetooth advertises and carries

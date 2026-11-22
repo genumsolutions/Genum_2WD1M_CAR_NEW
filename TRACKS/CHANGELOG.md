@@ -11,6 +11,15 @@ one-line dump was not. `Config.h:10` remains the source of truth for the value.
 > car was still on an older build. See `TRACKS/SESSION-2026-10-22-U120.md` for
 > the current resume point.
 
+> **Version line (2026-11-23, owner decision).** `Config.h:10` reads **2.0.0** and
+> stays there: `Config.h` is the single source of truth, and 2.0.0 has been the
+> 2WD1M's own value since this repo's first commit. The 1.3.x headings below are
+> the inherited 4WD4M-lineage history these changes were written against, not this
+> repo's numbering. Consequence, by design: the first boot after any flash that
+> changes the value is a version change, so `wipeRoutersOnFreshFirmware()` erases
+> the saved routers and transport toggles. That is the U-98 "a flash starts clean"
+> ruling, not a defect — re-add the router on the bench (RUNSHEET Step 5).
+
 ## UNRELEASED (2026-11-20) — ESP32 core 4.0.0: the radio diet, and the guards that froze the car
 
 - **Why behaviour changed after an Arduino IDE update.** The bench machine now has
@@ -41,8 +50,10 @@ one-line dump was not. `Config.h:10` remains the source of truth for the value.
   already-running controller. `setPin()` is version-guarded too (4.x dropped its
   length argument). The `bt-heap` gate now pins BOTH forms and the
   `ESP_ARDUINO_VERSION_MAJOR >= 4` guard that selects between them.
-- **Compatibility:** protocol, fail-safe behaviour and `FW_VERSION` are unchanged
-  (bumping the version would trigger the fresh-firmware NVS wipe).
+- **Compatibility:** protocol and fail-safe behaviour are unchanged. `FW_VERSION`
+  stays **2.0.0** (see the version-line note at the top): the first boot after
+  flashing is a version change and DOES wipe the saved routers and transport
+  toggles, so re-add the router on the bench.
 - **Verification:** compiles on **core 4.0.0** (`arduino-cli 1.6.0`,
   `esp32:esp32:esp32:PartitionScheme=huge_app`) - 1,893,722 B (60%), and
   `check-firmware-contract.mjs` reports 0 failures. `mutate-gates.mjs` was deferred
@@ -74,8 +85,9 @@ one-line dump was not. `Config.h:10` remains the source of truth for the value.
   stopped web layer in Bluetooth-only mode, leaving Bluetooth command/state
   exchange and page-toggle synchronization intact.
 - **Compatibility:** protocol and fail-safe behavior are unchanged. `FW_VERSION`
-  remains 1.3.19 because changing it invokes the existing fresh-firmware NVS
-  cleanup, which would erase saved router and transport settings.
+  is **2.0.0** (this repo's own line — see the version-line note at the top), so
+  the existing fresh-firmware cleanup erases the saved router and transport
+  settings on the first boot after a flash.
 - **Verification:** `check-firmware-contract.mjs` — 0 failures (including the
   new `boot-transport-policy` rule); `check-webpage-js.mjs` — PASS;
   `check-firmware-syntax.ps1` — 9/9 translation units parse on core 3.3.12.
