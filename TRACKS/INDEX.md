@@ -4,6 +4,27 @@
 > this repo). Cross-project ledger: workspace `guide/GUIDE.md`. Master plan:
 > `guide/PLAN-2026-09-28-4WD4M-CAR-REFERENCE-DESIGN.md`.
 
+**Status (2026-11-23 — FW 2.0.0 in `Config.h`, UNFLASHED):** the current tree is
+the 2026-11-20 ESP32-core-4.0.0 round plus U-126. **Core 4.0.0 silently reverted
+the classic-BT-only diet** (`begin()` lost `disableBLE`, the controller came up in
+`BTDM` mode, ~36 kB returned) and free heap fell into the 13-18 kB zone — where
+this firmware's OWN low-heap guards (`loop()` returning before `ModeManager::run()`
+below 16 kB, `handle()` returning before `server.handleClient()`/`ws.loop()` below
+20 kB) were permanently true. That was the reported "it connects and then
+freezes". Both guards are removed (driving and the command path always run; the
+heap floors stay inside the operations that allocate) and the diet is restored per
+core: 3.x keeps `begin(name, false, true)`, 4.x calls `btStartMode(BT_MODE_CLASSIC_BT)`
+before `SerialBT.begin()`; `setPin()` is version-guarded. Compiles on 4.0.0 at
+1,893,722 B (60%) / 81,384 B (24%). **U-126:** boot honours the persisted
+transport toggles (a Bluetooth-only boot raises no Wi-Fi; a low-heap boot cannot
+bypass `admitSecondLink()`). **Version note:** `Config.h` reads **2.0.0** and this
+repo treats `Config.h:10` as the truth, so the first boot after this flash is a
+version change and WIPES the saved routers + transport toggles (expected). The
+older changelog entries that say "`FW_VERSION` remains 1.3.19" describe the state
+before that value. Gates re-run 2026-11-23: `check-firmware-contract.mjs`
+**0 failures** · `check-webpage-js.mjs` **PASS**. **Nothing was flashed** — the
+heap figures are the core's own accounting, not a bench measurement.
+
 **Status (2026-10-25 — U-124 ⑫, FW 1.3.18 written, UNFLASHED):** the owner's
 *"webpage shows white screen in browser and the ip is not hidden anywhere … fix
 these when webpage is off"* — the car half is ONE line: `serveGhostPage()`

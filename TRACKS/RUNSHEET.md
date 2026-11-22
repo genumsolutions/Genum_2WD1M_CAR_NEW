@@ -1,16 +1,18 @@
-# RUNSHEET — flash 1.3.19 + the U-125 dual-link heap-admission pass
+# RUNSHEET — flash 2.0.0 + the U-125 / U-126 heap and boot-policy pass
 
-> One sheet for the owner's next bench session. Firmware **1.3.19** (UNFLASHED;
-> **1.3.11 IS on the car**) + app **3.2.8 / versionCode 61** (new signed APK).
+> One sheet for the owner's next bench session. Firmware **2.0.0** — the value in
+> `Config.h`, which this repo treats as its single source of truth — **UNFLASHED**;
+> the build actually on the car is older, so read `fw` from `/status` before you
+> start. App **3.4.5 / versionCode 69** (current signed APK).
 > Tick the rows in the row sheets as you go, NEWEST ROUND FIRST — car `TRACKS/DEVICE-TESTS.md`:
 > (**U-125-1/2 — this flash's own fix — then** U-124-⑫ · U-121-E2 · U-121-E · Q1-1/Q1-2 · U-120-B · U-117-1..3 · U-119-1 · U-116-10..15,
 > U-115-1..3 · U-113-8..15) · app `mobile/TESTING.md` — **U-125-1..5** · U-124-1..9 · U-123-1..4 · U-122-1..4 · U-121-A1..C2 + R1-A..D · U-120-C1..E3 ·
 > U-117-1..4 · U-118-1..4 · U-119-1 · U-116-1..9, 13, 16..20).
 > **F-61: every gate behind this build is green and none of it is device evidence.**
 
-## 0 · What this one flash carries (1.3.11 → 1.3.19)
+## 0 · What this one flash carries (earlier build → 2.0.0)
 
-The car is on **1.3.11** already; 1.3.12 through 1.3.19 all ride this flash:
+Every round below rides this one upload:
 
 | Round | What you should notice |
 |---|---|
@@ -43,7 +45,7 @@ bench pass below verifies them, not re-flashes them:
 first boot (`wipeRoutersOnFreshFirmware()`): both transports ON, auto-join OFF (Q1),
 no router saved. Re-add your router in Step 5.
 
-## 1 · Flash 1.3.19 (USB)
+## 1 · Flash 2.0.0 (USB)
 
 ESP32 Dev Module, **Partition Scheme = Huge APP (required)**, upload **115200**
 (this CH340 fails at the default 921600):
@@ -53,18 +55,18 @@ ESP32 Dev Module, **Partition Scheme = Huge APP (required)**, upload **115200**
 
 > **If `arduino-cli` answers `Platform 'esp32:esp32' not found`:** on this box it
 > defaults its data dir to `%TEMP%\opencode\tools\data` while the real install
-> is in `%LOCALAPPDATA%\Arduino15` (esp32 core 3.3.12). Add
+> is in `%LOCALAPPDATA%\Arduino15` (esp32 core 4.0.0). Add
 > `--config-file <file>` to both commands, with that file carrying
 > `directories.data: C:\Users\caspe\AppData\Local\Arduino15`.
 
-(1.3.11 is on the car; 1.3.19 is another version-change wipe of the saved
-routers — expected. **1.3.9 and older are superseded.**)
+(`Config.h` is at **2.0.0**, a version change, so the first boot wipes the saved
+routers + transport toggles — expected. Older builds are superseded.)
 
 Capture the first boot while you are at it (~15 s, resets the board):
 
-    python tools/serial_capture.py COM<port> 15 boot-1.3.19.log
+    python tools/serial_capture.py COM<port> 15 boot-2.0.0.log
 
-**Expect in that log:** `[BOOT] Restored mode=4WD4M`, the router-wipe line
+**Expect in that log:** `[BOOT] Restored mode=2WD1M`, the router-wipe line
 (version change), `Own AP active: 2WD1MCar_WiFi`, and
 `[V2] Web layer always-on: AP=2WD1MCar_WiFi ip=192.168.245.1 http=:80 ws=:81`
 — **`AP=` must NOT be empty** (that was U-109's bug). No
@@ -73,12 +75,10 @@ Capture the first boot while you are at it (~15 s, resets the board):
 
 ## 2 · Install the signed app APK
 
-Install **`D:\GENUM-APP-BUILD\genum-solutions-3.2.8-v61-arm64.apk`** on the
-phone (or run `adb install -r` with that file). It is signed with the same
-release key as the previous build and must update app **3.2.7/60** in place.
-Confirm About reports **3.2.8**. This round is a native APK build, not an OTA
-upload; the live release manifest remains at its last published version until
-the APK is separately uploaded.
+Install the current signed release APK (app **3.4.5 / versionCode 69**, from
+`D:\GENUM-APP-BUILD\`) on the phone, or `adb install -r` it. It must update the
+installed build **in place** — do not uninstall first, or the saved device
+preferences go with it. Confirm About reports **3.4.5**.
 
 ## 3 · Bluetooth: forget and re-pair
 
@@ -98,7 +98,7 @@ once, re-join. Expect an `192.168.245.x` address, then open:
 
     http://192.168.245.1/status
 
-Check `ap` = `2WD1MCar_WiFi` (**never empty**), `fw` = `1.3.17`, and the crash
+Check `ap` = `2WD1MCar_WiFi` (**never empty**), `fw` = `2.0.0`, and the crash
 fields (`crash_count`, `reset_reason`, the phase). Also check `tele_params` reads
 `freq=1600, vyse=0` (U-114) and that `wifi_enabled`/`bt_enabled`/`boot_autojoin`
 report your actual toggles, not `1600`/`0`. The page's mode dropdown and
