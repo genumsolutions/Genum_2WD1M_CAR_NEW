@@ -262,4 +262,12 @@ constexpr int SERVO_ANGLE_MAX = 180;
 constexpr int SERVO_PULSE_MIN_US = 500;
 constexpr int SERVO_PULSE_MAX_US = 2500;
 constexpr int STEER_LIMIT_MIN = 10;
-constexpr int STEER_LIMIT_MAX = 90;
+// S-11 (owner bench report 2026-11-23): the ceiling is 60 deg, not 90. The
+// owner asked for "maximum steering angle to 60 degree ... if no previous values
+// are set start with middle value like 30 degree". STEER_LIMIT_DEFAULT is the
+// value a car with nothing saved in NVS starts at; a saved limit is remembered
+// and merely clamped into [MIN, MAX] on load (ParamsStore::loadSteerLimit), so
+// a car that had 90 stored comes up at 60 rather than keeping an unreachable
+// ceiling.
+constexpr int STEER_LIMIT_MAX = 60;
+constexpr int STEER_LIMIT_DEFAULT = 30;

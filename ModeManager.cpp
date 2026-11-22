@@ -19,7 +19,9 @@ static uint32_t defaultNow() { return millis(); }
 // 2WD1M-compat drive handler (D-2 approved; ported from the
 // Genum_SELF_BALANCE_CAR reference where it is proven on hardware).
 static TwoWD1M g_2wd1mHandler;
-static int g_steerLimit = 90;
+// S-11: a car with nothing saved for steering starts at STEER_LIMIT_DEFAULT
+// (30 deg), not at the old 90 ceiling. A saved value still wins on boot.
+static int g_steerLimit = STEER_LIMIT_DEFAULT;
 
 // ---- Mode registry (D-2; v2 fleet reference) ----
 // token = canonical protocol token (MODE_CMDS[] parity with the ESP remote).
