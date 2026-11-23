@@ -19,7 +19,7 @@
 - [ ] **U-128-2 — the steer limit survives a power cycle and clamps.**
       Send `STEER30`, power-cycle, confirm it persists, then send `SERVO170`: the
       servo travels only to centre+30, not to 170. Send `STEER200` and `STEER0`
-      and confirm they clamp to `STEER_LIMIT_MIN..MAX` (10..90) instead of
+      and confirm they clamp to `STEER_LIMIT_MIN..MAX` (10..60, S-11) instead of
       erroring.
 - [ ] **U-128-3 — the servo is real, centred, and trimmed the documented way.**
       `SERVO90` centres the wheels; `SERVO0` and `SERVO180` reach both ends as far
@@ -44,6 +44,48 @@
       the car leaves its own hotspot and joins it (`;SSID=` updates, `joined`),
       rather than merely storing the name. Save two routers and switch twice —
       each switch lands on the requested network.
+
+## 2026-11-23 round 2 — U-130: the bench-report fixes (flash **2.0.0** — DEVICE VERIFY PENDING)
+
+> Written 2026-11-23 against this repo's `main` after the S-01/S-02/S-04/S-08/
+> S-11/S-12/S-14/S-15 fixes. Each row names the snag it proves. Nothing here is
+> device-verified (F-61); record the observed values beside the tick.
+
+- [ ] **U-130-1 — ⭐ a second link is admitted after the app closes (S-04).**
+      Open the car's page over Wi-Fi and drive once, then close the app fully
+      (do NOT power-cycle the car). Connect over Bluetooth within the 4 s
+      `LINK_OWNER_HOLD_MS`: the car accepts it, the OLED switches to the BT link,
+      and `LINKCAP` is not 0. Then close BT and reconnect over Wi-Fi. Both
+      directions must work on one boot.
+- [ ] **U-130-2 — ⭐ Bluetooth advertising survives a fresh boot (S-08).**
+      Fresh boot with no phone associated to the car's own hotspot: pair and
+      connect over Bluetooth. If it refuses, capture the serial `[BT] controller
+      mode=… ble-mem-released=…` line — that distinguishes a refused classic start
+      from a stale bond against the old name (delete the bond and retry before
+      reporting a fault).
+- [ ] **U-130-3 — the last two OLED rows follow the live link (S-01).**
+      Idle: rows 3–4 keep alternating Wi-Fi / Bluetooth. Connect BT only: row 3
+      reads `Bluetooth : 2WD1M Car`, row 4 `Type : SPP`, and it stops blinking.
+      Wi-Fi only: `WiFi : <ssid>` / `IP : <ip>`. Both: `BT + WiFi connected` /
+      `IP : <ip>`. Disconnect: the idle rotation returns.
+- [ ] **U-130-4 — boot names the saved router, not the own hotspot (S-02).**
+      With a router saved and autojoin on, power-cycle: during the join the OLED
+      shows `WiFi : <saved ssid>` / `IP : joining...`, and only shows the own
+      hotspot if the join actually fails (after ~15 s). It must not flash the own
+      hotspot first and then flip on a normal join.
+- [ ] **U-130-5 — the page reports off while Bluetooth owns the link (S-12).**
+      BT linked: the app's Webpage switch reads OFF and says Bluetooth owns the
+      link; `http://<car-ip>/` does not answer. Disconnect BT and the page comes
+      back by itself, with the owner's stored toggle respected.
+- [ ] **U-130-6 — steering starts at 30 and stops at 60 (S-11).**
+      `FACTORY;RESET`, reboot: `;STEER=` reads 30 with nothing saved. `STEER90`
+      clamps to 60 and the servo stops there. A car upgrading with 90 stored comes
+      up at 60 rather than keeping an unreachable ceiling.
+- [ ] **U-130-7 — the car's page is landscape-only with two pads (S-14/S-15).**
+      Portrait: one rotate-to-landscape notice, no stacked controls. Landscape:
+      left pad is throttle (FWD/STOP/BWD), right pad is steering (LFT/STOP/RGT);
+      each centre stops the car. The page still shows the car's own IP, and on a
+      desktop window it centres instead of leaving a narrow column.
 
 ## Not implemented — do NOT test these yet
 
