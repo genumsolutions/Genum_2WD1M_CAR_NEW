@@ -87,14 +87,22 @@
       each centre stops the car. The page still shows the car's own IP, and on a
       desktop window it centres instead of leaving a narrow column.
 
+- [ ] **U-130-8 — drive ramps up, and reverses through a dead-time (U-132).**
+      Throttle from rest climbs over ~250 ms instead of snapping to full duty; the
+      steering servo still answers immediately (the ramp is the motor bridge, not
+      the servo). Forward → reverse: a brief pause (~60 ms), then the opposite
+      direction ramps up. `SPD0` / the 2 s failsafe still cut power at once. Run
+      ≥10 reversals and watch `crash_count`.
+- [ ] **U-130-9 — the car reports its project id (U-132).** `/status` carries
+      `"project":"2wd1mcar"` beside `"fw":"2.0.0"`, and every STATE line
+      carries `;PROJ=2wd1mcar` — including over Bluetooth with Wi-Fi OFF. In the
+      app the car lands under the 2WD1M project card rather than by free-text name.
+
 ## Not implemented — do NOT test these yet
 
-> Re-checked 2026-11-23 against `main`. Both were described in
-> `genumsolutions-app/docs/BENCH-2026-11-19.md`.
+> Re-checked 2026-11-23: the project identity and the motor soft-start shipped
+> (U-132); see U-130-8/U-130-9 above. One item genuinely remains:
 
-- **Project identity on the wire.** There is no `FW_PROJECT` here, so `/status`
-  carries no `"project"` field and STATE carries no `;PROJ=`. The app's
-  `projectId` stays unknown and it falls back to name grouping.
 - **Per-car telemetry memory.** The car sends live values only; remembering the
   last telemetry per device is app-side persistence, so it cannot be verified
   from this firmware.

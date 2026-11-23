@@ -22,6 +22,13 @@
 // mid-sentence in the original.
 #define FW_VERSION "2.0.0"  // see TRACKS/CHANGELOG.md
 #define FW_VENDOR  "GENUM SOLUTIONS PVT. LTD."
+// U-132 (2026-11-23): the canonical project id on the wire. The app groups
+// devices by this id, never by a name: `FW_NAME`/`BT_SPP_NAME` are free text and
+// have already been renamed once per fleet, while this value is the key that
+// survives a rename. Transport mirrors: /status `"project"` and STATE
+// `;PROJ=` — both already parsed by the app (`carProtocol.ts`). Lowercase, no
+// spaces; the app normalises to alphanumerics ("2wd1mcar" -> "2wd1m").
+#define FW_PROJECT "2wd1mcar"
 
 // ---- T66 (round-9) · U-114: the telemetry-parameter config surface ----
 // The car firmware and the TSH gate BOTH read this one line. Every scalar
@@ -118,6 +125,18 @@ constexpr SwitchType SWITCH_TYPE = SwitchType::MOMENTARY;
 // 4.x - the Arduino ledcSetup()/ledcWrite() wrappers are not used anywhere.
 constexpr uint32_t PWM_FREQ = 20000u;
 constexpr uint8_t PWM_RESOLUTION = 8u;
+
+// ---- U-132: motor soft-start and reversal dead-time ----
+// An L298N takes the full battery rail through a stalled motor when the
+// direction pins and the full PWM duty land in the same instruction. That
+// current step is what the brownout reports came from, so drive() now ramps the
+// duty up over MOTOR_SOFTSTART_MS and, on a direction change, drops to zero and
+// waits MOTOR_REVERSAL_DEADTIME_MS before the opposite pair is energised. Both
+// are ticked from L298NControl::update() — ModeManager::run() calls it every
+// pass — never by delay(), so the command path and the watchdog stay
+// responsive. STOP never ramps: a stop that eases off is a runaway.
+constexpr uint32_t MOTOR_SOFTSTART_MS = 250u;
+constexpr uint32_t MOTOR_REVERSAL_DEADTIME_MS = 60u;
 // This car's servo owns LEDC timer 1 / channel 2 at 16-bit (SteeringServo.cpp).
 constexpr uint32_t FAILSAFE_TIMEOUT_MS = 2000u;
 

@@ -3807,6 +3807,11 @@ snprintf(buf, bufLen,
        "\"ssid\":\"%s\","
        "\"want\":\"%s\","
        "\"ap\":\"%s\","
+       // U-132: the canonical project id. The app groups devices by this key and
+       // never by `ap`/`ssid`/name; static literal from Config.h. Kept BEFORE
+       // `id` so the fw slot's argument neighbour stays boardId/FW_VERSION
+       // (the status-fw gate pins that adjacency as the snprintf-order contract).
+       "\"project\":\"%s\","
        "\"id\":\"%s\","
        "\"fw\":\"%s\","
        "\"networks\":[%s],"
@@ -3857,6 +3862,7 @@ snprintf(buf, bufLen,
       ssidOut,
       wantOut,
       apOut,
+      FW_PROJECT,
       boardId,
       FW_VERSION,
       networks,
