@@ -1,4 +1,4 @@
-Version 2.0.0
+Version 2.0.1
 
 # 2WD1M Car — Genum_2WD1M_CAR_NEW (v2 fleet reference design)
 
@@ -20,7 +20,7 @@ no donor tags** (fresh git history, owner ruling R-2). The donor repo remains un
 | Bluetooth SPP name | **`2WD1M Car`** (PIN 1234) — `Config.h` `BT_SPP_NAME` (U-110: the phone list, the OLED and the app must all show this exact mixed-case name; re-pair once after a rename) |
 | Wi-Fi AP SSID | **`2WD1MCar_WiFi`** (open) — `Config.h` `WIFI_AP_NAME` (1.3.5: the ONE own-hotspot name; donor `WirelessCar_Wifi` and older `4WDCar_Wifi` fully removed) |
 | AP subnet | **192.168.245.1/24** (NOT 192.168.4.x — phone-side subnet collision is a proven past bug; the .244 subnet belongs to the WIRELESS car so two cars can coexist) |
-| FW_NAME / FW_VERSION | `2WD1M Car` / `2.0.0` — `Config.h` |
+| FW_NAME / FW_VERSION | `2WD1M Car` / `2.0.1` — `Config.h` |
 
 ## 3. Modes (fleet 9-token registry + CAPS)
 
