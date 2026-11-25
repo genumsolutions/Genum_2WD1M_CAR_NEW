@@ -1,5 +1,13 @@
 # TODO — Genum_2WD1M_CAR_NEW
 
+## 2026-11-26 device round — OPEN
+
+First on-car test of 4.0.0. The cross-repo queue is `../todo/2026-11-26-device-test.md`:
+T2 (neither Bluetooth nor Wi-Fi links — diagnose core pin + stale NVS first), T4 (boot to last
+router), T9 (state survives power cycle), T10 (reset also clears the DB), T6 (motor lag/jitter),
+T7 (page D-pad position — code done, unflashed), T5 (port every 4WD4M fix here). The 2WD1M tree
+is a clone: unexplained drift from the 4WD4M tree is itself a bug.
+
 ## Phase 0 — repo baseline + rename (2026-09-28) — DONE
 - [x] **P0-1** fresh copy from donor 1.8.4 (`d0bf8c0`) via `git archive` — no `.git/`, no
       `secrets.h`, no `build/`, donor TRACKS not carried
