@@ -66,9 +66,7 @@ static const char PAGE_HTML[] PROGMEM = R"rawliteral(
     /* S-16 (owner 2026-11-26): the crosses sat in the middle of the stage, out of
        thumb reach while holding the phone at the ends. Each pad owns its half and
        sits at that half's outer edge; buttons keep their size. */
-    .pads{display:flex;flex:1;min-height:0;width:100%;align-items:stretch;justify-content:flex-start;gap:clamp(6px,2vw,18px);padding:0 clamp(2px,2vw,18px);box-sizing:border-box}
-.pad:first-child{margin-left:auto}
-.pad:last-child{margin-right:auto}
+    .pads{display:flex;flex:1;min-height:0;width:100%;align-items:stretch;justify-content:space-between;gap:clamp(6px,2vw,18px);padding:0 clamp(2px,2vw,18px);box-sizing:border-box}
     .pad{display:flex;flex-direction:column;flex:1;min-width:0;max-width:430px;align-items:stretch;justify-content:center}
     /* The 3x3 grid cell that carries no zone: same footprint as a button so the
        cross stays centred. */
