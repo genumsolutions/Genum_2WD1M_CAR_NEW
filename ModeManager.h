@@ -74,6 +74,15 @@ public:
   void run();
   void checkFailsafe();
   void resetFailsafe();
+  /** T3 (2026-11-26 device round): the true->false link edge. Drops the held
+   *  drive values to boot defaults and repaints the panel idle in the SAME
+   *  tick — the 1 s STATE broadcast cannot do it because the client that
+   *  would render it is gone. Called from checkFailsafe()'s edge detector. */
+  void onLinkLost();
+  /** T10: FACTORY;RESET erased `botcfg`; this puts the running session back to
+   *  the same defaults in RAM (mode, speed, trim, steer limit) and repaints.
+   *  Shares resetHeldDriveState() with onLinkLost() so the two cannot drift. */
+  void factoryResetState();
   void setComm(CommInterface* newComm);
   void setAuxComm(CommInterface* aux);
   void setExtraInfo(const char* info);
@@ -187,6 +196,10 @@ void buildCapsMap(char* buf, size_t bufLen) const;
 private:
   const char* modeToString(Mode m) const;
   bool isConnectedNow() const;
+  /** The ONE definition of "back to boot defaults" for held DRIVE state —
+   *  shared by the link-loss edge and the factory wipe (T3/T10). Persisted
+   *  calibration (trim) is deliberately not part of it. */
+  void resetHeldDriveState();
 
   MotorControl* motor_;
   SteeringServo steeringServo_;  // R-20 real steering servo (D27)

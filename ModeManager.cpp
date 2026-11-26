@@ -783,10 +783,18 @@ void ModeManager::checkFailsafe() {
     readyDisplayed_ = false;
     lastCommandTimeMs_ = now;
     if (currentMode_ == Mode::M2WD1M) steeringServo_.center();
+    if (!connectedNow) {
+      // T3 (2026-11-26 device round): the link is GONE. Safety was already
+      // covered by the 2 s failsafe; this is the state/presentation half —
+      // drop the holds and repaint idle now, in this tick, from the car's
+      // defaults rather than the last throttle the app sent.
+      onLinkLost();
+      return;
+    }
     // T-46 (round-4): dedupe the edge frame — skip the redraw when the
     // new message matches the last shown status, so rapid Reconnected /
     // Disconnected chattering during BT settling no longer floods the OLED.
-    snprintf(statusText_, STATUS_TEXT_LEN, connectedNow ? "Reconnected" : "Disconnected");
+    snprintf(statusText_, STATUS_TEXT_LEN, "Reconnected");
     if (strcmp(statusText_, lastOledStatus_) != 0 && oled_) {
       oled_->draw(statusText_, speed_, connectedNow, modeToString(currentMode_), extraInfo_);
       strncpy(lastOledStatus_, statusText_, STATUS_TEXT_LEN - 1);
@@ -911,6 +919,71 @@ void ModeManager::resetFailsafe() {
   failsafeActive_ = false;
   readyDisplayed_ = false;
   lastCommandTimeMs_ = nowFn_();
+}
+
+// T3/T10 (2026-11-26 device round): the ONE definition of "back to boot
+// defaults" for held DRIVE state. onLinkLost() and factoryResetState() both
+// call this, so "the app went away" and "the user wiped the car" can never
+// disagree about what a default is.
+//
+// `driveTrim_` is deliberately NOT cleared here: trim is persisted CALIBRATION
+// (T9 requires it to survive a power cycle), not a value the last command was
+// holding. Zeroing it on every link drop would show one trim during the
+// session and another after the next boot. Only the factory wipe clears it.
+void ModeManager::resetHeldDriveState() {
+  speed_ = static_cast<uint16_t>(MIN_SPEED);
+  if (currentMode_ == Mode::M2WD1M) steeringServo_.center();
+  // T3 acceptance: the drive stops in the SAME loop as the link loss, not 2 s
+  // later on the failsafe. Same exemption as the failsafe itself — an
+  // autonomous mode is supposed to keep running with nobody attached.
+  if (motor_ && !registryFor(currentMode_).runsAutonomous) motor_->drive(Action::STOP, 0);
+  failsafeActive_ = false;
+  readyDisplayed_ = false;
+  lastCommandTimeMs_ = nowFn_();
+}
+
+void ModeManager::onLinkLost() {
+  resetHeldDriveState();
+  snprintf(statusText_, STATUS_TEXT_LEN, "Disconnected");
+  // T3: repaint in THIS tick, and do NOT gate it on hasWsClients() — the
+  // client that would have rendered the next 1 s broadcast is gone by
+  // definition, which is precisely why the panel used to freeze on the last
+  // throttle. No T-46 dedupe here: a true->false edge always differs from the
+  // frame before it, so there is nothing to dedupe against.
+  if (oled_) {
+    oled_->draw(statusText_, speed_, false, modeToString(currentMode_), extraInfo_);
+    strncpy(lastOledStatus_, statusText_, STATUS_TEXT_LEN - 1);
+    lastOledStatus_[STATUS_TEXT_LEN - 1] = '\0';
+    lastOledMs_ = nowFn_();
+  }
+}
+
+void ModeManager::factoryResetState() {
+  // T10: FACTORY;RESET has already erased `botcfg`. The RAM copies of the
+  // persisted settings must follow in the same tick, or the running session
+  // keeps reporting — and showing — exactly what was just wiped, and the mode
+  // it was in survives as if the reset had not happened.
+  resetHeldDriveState();
+  driveTrim_ = 0;
+  g_2wd1mHandler.setTrim(0);
+  g_steerLimit = STEER_LIMIT_DEFAULT;
+  g_2wd1mHandler.setSteerLimit(g_steerLimit);
+  // The mode too: with no stored mode, applyBootState() keeps the compile-time
+  // default, so a wipe must land there rather than on whatever was live.
+  currentMode_ = Mode::M2WD1M;
+  steeringServo_.center();
+  snprintf(statusText_, STATUS_TEXT_LEN, "Ready");
+  if (oled_) {
+    oled_->setModeContext(getModeToken(),
+                          registryFor(currentMode_).isStub(),
+                          registryFor(currentMode_).avail == ModeAvail::WIP,
+                          registryFor(currentMode_).acceptsDrive);
+    oled_->draw(statusText_, speed_, isConnectedNow(),
+                modeToString(currentMode_), extraInfo_);
+  }
+  strncpy(lastOledStatus_, statusText_, STATUS_TEXT_LEN - 1);
+  lastOledStatus_[STATUS_TEXT_LEN - 1] = '\0';
+  lastOledMs_ = nowFn_();
 }
 
 // T-13: debounced NVS persistence of the authoritative mode + speed. The
