@@ -43,5 +43,4 @@ private:
   BluetoothSerial SerialBT;
   bool started_ = false;
   unsigned long lastActivityMs = 0;
-  bool clientConnectedSinceBoot_ = false;
 };

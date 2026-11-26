@@ -25,7 +25,14 @@
 // ruling: the FIRST boot after this flash is a version change, so
 // wipeRoutersOnFreshFirmware() clears the saved routers and transport toggles by
 // design — re-add the router on the bench (RUNSHEET Step 5).
-#define FW_VERSION "2.0.2"  // see TRACKS/CHANGELOG.md
+// U-142 (2026-11-27): 2.0.2 -> 2.0.3. Owner asked for a version upgrade with
+// every build so a flash is identifiable from the app and /status. Note the U-98
+// ruling: the FIRST boot after this flash is a version change, so
+// wipeRoutersOnFreshFirmware() clears the saved routers and transport toggles by
+// design — re-add the router on the bench (RUNSHEET Step 5). That wipe is also
+// what makes this build recoverable over the air: the car boots AP-only instead
+// of re-running the stored-router join that was parking the hotspot.
+#define FW_VERSION "2.0.3"  // see TRACKS/CHANGELOG.md
 #define FW_VENDOR  "GENUM SOLUTIONS PVT. LTD."
 // U-132 (2026-11-23): the canonical project id on the wire. The app groups
 // devices by this id, never by a name: `FW_NAME`/`BT_SPP_NAME` are free text and

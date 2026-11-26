@@ -20,6 +20,27 @@ one-line dump was not. `Config.h:10` remains the source of truth for the value.
 > the saved routers and transport toggles. That is the U-98 "a flash starts clean"
 > ruling, not a defect — re-add the router on the bench (RUNSHEET Step 5).
 
+## 2.0.3 (2026-11-27) — U-142: the links stay connectable
+
+- **Bluetooth paired but would not connect, and the own hotspot was visible but
+  would not join.** Both symptoms at once is a single fault: `BluetoothComm::connected()`
+  had been changed (U-141) to remember that a client had *ever* attached, so it kept
+  answering `true` after that client was gone. Everything downstream reads that answer
+  as *live liveness*, so `arbitrateLinkOwnership()` believed Bluetooth was permanently
+  connected and kept the car's own AP parked with `suspendAP()` — the beacon stayed on
+  the air but a phone could not finish a join — while `setOtherLinkParked(true)` held
+  `LINKCAP` at 0 so the app refused every reconnect until a power cycle. The BT
+  hard-restart watchdog was dead code for the same reason: it can only fire when
+  `connected()` goes false. `connected()` is back to reporting the current attachment
+  (`started_ && SerialBT.hasClient()`), which is also what the 4WD4M does.
+- **The boot auto-join no longer arms a rejoin from `loadStoredWifi()`.** U-141 called
+  `rejoinNetwork()` from there, before `hasStoredWifi_` had been computed (so it never
+  fired on the boot path) and before `beginAlwaysOn()` had started the AP. Where it was
+  live it duplicated the join that `armBootAutoJoin()` owns — probe first, called once at
+  the end of `setup()`. One owner per radio start; the load-only contract is restored.
+- **Version 2.0.3.** Per the U-133 ruling the flash is identifiable from the app and
+  `/status`, and the version change wipes the stored router, so this build boots AP-only.
+
 ## 2.0.1 (2026-11-24) — U-133: the motors reach their demand, and a switch shows its clock
 
 - **The SPD floor was a stop, and the ramp ate the rest of the demand.** Two

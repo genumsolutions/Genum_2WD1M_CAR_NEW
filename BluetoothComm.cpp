@@ -244,20 +244,24 @@ void BluetoothComm::flush() {
 }
 
 bool BluetoothComm::connected() {
-  // U-141: only report connected if we've ever had a client since boot,
-  // or if a client is currently connected. This prevents the car from
-  // appearing connected after a BT stack wedge where hasClient() gets
-  // stuck in an incorrect state.
-  if (started_ && (clientConnectedSinceBoot_ || SerialBT.hasClient())) {
-    // If just now connected, mark it for future checks
-    if (SerialBT.hasClient() && !clientConnectedSinceBoot_) {
-      clientConnectedSinceBoot_ = true;
-    }
-    return true;
-  }
-  // If no client and not ever connected since boot, clear the flag if
-  // a client connects later (handled in the connect path)
-  return false;
+  // Liveness is the CURRENT attachment, never a memory of one.
+  //
+  // U-142 (owner bench 2026-11-27: "bluetooth pairs but doesn't connect, the
+  // wi-fi shows the network but doesn't connect"): this briefly latched a
+  // `clientConnectedSinceBoot_` flag, so once a single SPP client had EVER
+  // attached, connected() answered true for the rest of the uptime. Every
+  // consumer treats this as live liveness, so the latch did real damage:
+  //   - arbitrateLinkOwnership() saw `btLive` forever, called suspendAP() and
+  //     left the own hotspot PARKED, so the phone saw the beacon but could not
+  //     finish a join;
+  //   - setOtherLinkParked(true) kept LINKCAP at 0, so the app refused every
+  //     reconnect until a power cycle (the S-04/S-08 reports returning);
+  //   - maybeCheckSupplyAndBTWatchdog() could never see a real drop, so the
+  //     BT hard-restart recovery was dead code.
+  // ESP32 shares one 2.4 GHz radio between Wi-Fi and BT, so a parked AP plus a
+  // never-reconnecting SPP link is exactly "both signals visible, neither
+  // connects". Report the socket, not the history.
+  return started_ && SerialBT.hasClient();
 }
 
 // All command parsing lives in ModeManager::handleCommand() (T-1 single

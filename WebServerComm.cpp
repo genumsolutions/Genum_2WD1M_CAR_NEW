@@ -518,15 +518,6 @@ void WebServerComm::loadStoredWifi() {
   // quiet window, own-AP fallback), so the safe default is back to the owner's
   // rule: the car returns to the last-SWITCHED router by itself.
   bootAutojoin_ = prefs.getBool("boot_autojoin", true);
-  // U-141: log boot auto-join status for diagnostics
-  FW_LOG_VERBOSE("[WIFICFG] boot_autojoin=%s, hasStoredWifi=%d", 
-    bootAutojoin_ ? "ON" : "OFF", hasStoredWifi_);
-  // If boot auto-join is enabled and we have stored credentials, attempt
-  // immediate rejoin so the car connects to the last-switched router on boot.
-  if (bootAutojoin_ && hasStoredWifi_) {
-    FW_LOG_VERBOSE("[WIFICFG] Attempting boot auto-join of stored router");
-    rejoinNetwork();
-  }
   // U-116 (owner 2026-10-19: the app's webpage toggle "is not turning off
   // the car's own webpage"): the PAGE verb and setPageOff() PERSIST
   // `page_off` (and stop() re-persists it), but nothing ever READ it back
@@ -563,6 +554,16 @@ void WebServerComm::loadStoredWifi() {
     storedSsid_[0] = '\0';
     storedPass_[0] = '\0';
   }
+  // U-142: report the boot auto-join DECISION, but only after hasStoredWifi_ is
+  // known. The U-141 line above printed the flag before it was computed (always
+  // 0 on a fresh object) and then armed a rejoinNetwork() from here. That call
+  // was dead on the boot path for the same reason, and where it was live it
+  // duplicated the boot join that armBootAutoJoin() owns (probe-first, called at
+  // the end of setup()) - two owners of one radio start is how a churn loop gets
+  // written. Load only what was stored; let armBootAutoJoin() decide to use it.
+  FW_LOG_VERBOSE("[WIFICFG] boot_autojoin=%s, storedRouter=%s\n",
+                 bootAutojoin_ ? "ON" : "OFF",
+                 hasStoredWifi_ ? storedSsid_ : "(none)");
 }
 
 // U-116: setPageOff — the webpage server may be toggled OFF while the
