@@ -11,13 +11,6 @@
 #include "esp32-hal-bt.h"  // btStarted()/btStartMode(): the core-4.x classic-only diet
 #endif
 
-bool started_ = false;
-  // U-141: track whether a client has ever connected since boot.
-  // This prevents the car from appearing connected after a BT stack wedge
-  // where hasClient() gets stuck in an incorrect state.
-  bool clientConnectedSinceBoot_ = false;
-  unsigned long lastActivityMs = 0;
-#endif
 
 bool BluetoothComm::begin() {
   // Advertised name comes from BT_SPP_NAME (Config.h, ONE source) — since
