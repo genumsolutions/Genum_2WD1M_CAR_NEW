@@ -20,12 +20,12 @@
 // which made Config.h unreadable and ungreppable. Nothing is lost: the history
 // was extracted verbatim, including two entries that were already truncated
 // mid-sentence in the original.
-// U-133 (2026-11-24): 2.0.0 -> 2.0.1. Owner asked for a version upgrade with
+// U-133 (2026-11-24): 2.0.1 -> 2.0.2. Owner asked for a version upgrade with
 // every build so a flash is identifiable from the app and /status. Note the U-98
 // ruling: the FIRST boot after this flash is a version change, so
 // wipeRoutersOnFreshFirmware() clears the saved routers and transport toggles by
 // design — re-add the router on the bench (RUNSHEET Step 5).
-#define FW_VERSION "2.0.1"  // see TRACKS/CHANGELOG.md
+#define FW_VERSION "2.0.2"  // see TRACKS/CHANGELOG.md
 #define FW_VENDOR  "GENUM SOLUTIONS PVT. LTD."
 // U-132 (2026-11-23): the canonical project id on the wire. The app groups
 // devices by this id, never by a name: `FW_NAME`/`BT_SPP_NAME` are free text and
