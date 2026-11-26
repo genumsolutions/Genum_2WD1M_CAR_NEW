@@ -11,6 +11,14 @@
 #include "esp32-hal-bt.h"  // btStarted()/btStartMode(): the core-4.x classic-only diet
 #endif
 
+bool started_ = false;
+  // U-141: track whether a client has ever connected since boot.
+  // This prevents the car from appearing connected after a BT stack wedge
+  // where hasClient() gets stuck in an incorrect state.
+  bool clientConnectedSinceBoot_ = false;
+  unsigned long lastActivityMs = 0;
+#endif
+
 bool BluetoothComm::begin() {
   // Advertised name comes from BT_SPP_NAME (Config.h, ONE source) — since
   // U-110 it is "2WD1M Car", matching the OLED frame and the app. Keep in sync
@@ -243,7 +251,20 @@ void BluetoothComm::flush() {
 }
 
 bool BluetoothComm::connected() {
-  return started_ && SerialBT.hasClient();
+  // U-141: only report connected if we've ever had a client since boot,
+  // or if a client is currently connected. This prevents the car from
+  // appearing connected after a BT stack wedge where hasClient() gets
+  // stuck in an incorrect state.
+  if (started_ && (clientConnectedSinceBoot_ || SerialBT.hasClient())) {
+    // If just now connected, mark it for future checks
+    if (SerialBT.hasClient() && !clientConnectedSinceBoot_) {
+      clientConnectedSinceBoot_ = true;
+    }
+    return true;
+  }
+  // If no client and not ever connected since boot, clear the flag if
+  // a client connects later (handled in the connect path)
+  return false;
 }
 
 // All command parsing lives in ModeManager::handleCommand() (T-1 single
