@@ -3,6 +3,42 @@
 > Owner-at-the-bench sheets. Test order per standing rule: physical remote first — EXCEPT this
 > car, until O-3 (remote pairing update for `2WD1M Car`) lands → app-first for round 1.
 
+## 2026-11-27 round — U-142: both links connect, and a stalled socket recovers (flash **2.0.4** — DEVICE VERIFY PENDING)
+
+> Written 2026-11-27 from the owner's bench report *"bluetooth pairs but doesn't
+> connect, the wi-fi shows the network but doesn't connect"*. Source-traced
+> against this repo's `main`; nothing below is device-verified (F-61). Remember
+> the version change wipes the saved router, so the first boot after the flash is
+> AP-only by design — re-add the router afterwards (RUNSHEET Step 5).
+
+- [ ] **U-142-1 — ⭐ Bluetooth pairs AND connects, then drives.** Pair the phone,
+      open the app, connect over Bluetooth and drive. The old failure was a pair
+      with no SPP session, so the connect itself is the assertion, not the pairing.
+- [ ] **U-142-2 — ⭐ the car's own hotspot JOINS after Bluetooth disconnects.**
+      With Bluetooth connected, use the app's disconnect control, wait ~5 s, then
+      join `2WD1MCar_WiFi` and load the page. Under the fault this was the case
+      that showed the network and never completed the join (the AP stayed parked).
+- [ ] **U-142-3 — ⭐ a dead socket is noticed, and the hotspot returns WITHOUT a
+      power cycle.** Connect over Bluetooth, then walk the phone out of range (or
+      force-stop the app) so the socket dies without a clean SPP close. Within
+      ~35 s the serial should print `[LINK] no live client - both methods open
+      again`, the own hotspot becomes joinable, and `/status` reads
+      `"link_owner":"both"` and `"link_cap":1`. Do NOT power-cycle to make this
+      pass — the point is that it heals by itself.
+- [ ] **U-142-4 — the link comes back after the recovery.** Without re-flashing or
+      power-cycling, reconnect over Bluetooth and drive again.
+- [ ] **U-142-5 — ⚠ an IDLE live link must NOT be declared stalled.** Connect over
+      Bluetooth and leave everything alone for 90 s (no driving, no commands, phone
+      awake). The link must stay up: no `[LINK] … open again`, no `[BT-WD] Hard
+      restart`. This is the guard that the 30 s window never fires on an
+      idle-but-healthy link — if this row fails, the window is too short.
+- [ ] **U-142-6 — the car names the live owner and the capacity.** With Bluetooth
+      connected `/status` reads `"link_owner":"bt"` and `"link_cap":0` (the other
+      method is paused, not broken). After U-142-3 it reads `"both"` / `1`.
+- [ ] **U-142-7 — the flash is identifiable.** `/status` `"fw"` reads `2.0.4` (and
+      the OLED header agrees). If it reads anything else the flash did not take and
+      U-142-1..6 are not testing this build.
+
 ## 2026-11-23 round — U-128: remembered steering, trim and servo (flash **2.0.0** — DEVICE VERIFY PENDING)
 
 > 2WD1M-only coverage, written 2026-11-23 and source-traced against this repo's
