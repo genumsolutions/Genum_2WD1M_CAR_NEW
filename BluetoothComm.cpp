@@ -102,7 +102,13 @@ bool BluetoothComm::begin() {
   
   TRANSPORT_POWER_ENTER_CRITICAL();
   started_ = success;
-  if (started_) lastActivityMs = millis();
+  if (started_) {
+    lastActivityMs = millis();
+    // U-142: a fresh start is not a fresh attachment — the timeout only arms
+    // after the first successful write of the NEXT client (see sppWedged()).
+    lastTxOkMs_ = millis();
+    txSinceAttach_ = false;
+  }
   TRANSPORT_POWER_EXIT_CRITICAL();
 
   // P4/E1 (heap waterfall 2/6): the heap with the classic-BT controller/host
@@ -198,6 +204,10 @@ bool BluetoothComm::restart() {
     return false;
   }
   lastActivityMs = millis();
+  // U-142: re-init clears the wedge verdict so the next client is measured
+  // from scratch instead of inheriting the stalled session's timestamp.
+  lastTxOkMs_ = millis();
+  txSinceAttach_ = false;
   return true;
 }
 
@@ -230,7 +240,14 @@ int BluetoothComm::peek() {
 size_t BluetoothComm::write(const char* buf, size_t len) {
   crashRtcMark("bt-write");
   size_t n = SerialBT.write((const uint8_t*)buf, len);
-  if (n > 0) lastActivityMs = millis();
+  if (n > 0) {
+    lastActivityMs = millis();
+    // U-142: the liveness proof. BluetoothSerial::write() returns 0 when the
+    // SPP channel is really closed even while hasClient() still says attached,
+    // so a byte count here is the only reliable "the link still works" fact.
+    lastTxOkMs_ = millis();
+    txSinceAttach_ = true;
+  }
   return n;
 }
 
@@ -261,7 +278,31 @@ bool BluetoothComm::connected() {
   // ESP32 shares one 2.4 GHz radio between Wi-Fi and BT, so a parked AP plus a
   // never-reconnecting SPP link is exactly "both signals visible, neither
   // connects". Report the socket, not the history.
-  return started_ && SerialBT.hasClient();
+  //
+  // U-142 (4WD4M parity, 2.0.4): the CURRENT attachment is still not enough on
+  // its own — hasClient() can stay latched after the phone is gone, which is the
+  // wedge the U-141 latch was trying (and failing) to paper over. The liveness
+  // proof is TX PROGRESS: ModeManager broadcasts STATE every STATE_INTERVAL_MS
+  // (1.5 s) and BluetoothSerial::write() returns 0 when the SPP channel is
+  // really closed even while hasClient() still says attached. A socket that has
+  // accepted nothing for BT_SPP_TX_STALL_MS is reported DOWN, which releases
+  // the AP park after LINK_OWNER_HOLD_MS and hands the false edge to the
+  // BT_HARD_RESTART_MS watchdog — recovery without a power cycle.
+  if (!started_ || !SerialBT.hasClient()) {
+    txSinceAttach_ = false;  // the next attachment starts a fresh measurement
+    return false;
+  }
+  return !sppWedged();
+}
+
+// U-142: has the attached socket stopped accepting bytes?
+//
+// Only meaningful once this attachment has actually written something, so a
+// brand-new client is never measured against a stale timestamp. `millis()`
+// subtraction is unsigned, so the rollover at ~49 days is handled by the wrap.
+bool BluetoothComm::sppWedged() const {
+  return txSinceAttach_ &&
+         (static_cast<unsigned long>(millis() - lastTxOkMs_) > BT_SPP_TX_STALL_MS);
 }
 
 // All command parsing lives in ModeManager::handleCommand() (T-1 single

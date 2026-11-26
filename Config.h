@@ -32,7 +32,9 @@
 // design — re-add the router on the bench (RUNSHEET Step 5). That wipe is also
 // what makes this build recoverable over the air: the car boots AP-only instead
 // of re-running the stored-router join that was parking the hotspot.
-#define FW_VERSION "2.0.3"  // see TRACKS/CHANGELOG.md
+// U-142 (2026-11-27): 2.0.3 -> 2.0.4. Owner asked for a version upgrade with
+// every build so a flash is identifiable from the app and /status.
+#define FW_VERSION "2.0.4"  // see TRACKS/CHANGELOG.md
 #define FW_VENDOR  "GENUM SOLUTIONS PVT. LTD."
 // U-132 (2026-11-23): the canonical project id on the wire. The app groups
 // devices by this id, never by a name: `FW_NAME`/`BT_SPP_NAME` are free text and
@@ -165,6 +167,21 @@ constexpr uint32_t FAILSAFE_TIMEOUT_MS = 2000u;
 // The BT stack is re-initialized (BluetoothComm::restart(), throttled to once
 // per 60 s) after the link has been disconnected longer than this.
 constexpr unsigned long BT_HARD_RESTART_MS = 120000u;
+
+// ===== U-142 · SPP liveness timeout (4WD4M parity) =====
+// "Current attachment" is not enough on its own: hasClient() can stay latched
+// after the phone is gone, so connected() never goes false, the own hotspot
+// stays parked and the hard-restart watchdog above can never fire (it needs the
+// false edge).
+//
+// The liveness proof is TX PROGRESS, not hasClient(): ModeManager broadcasts
+// STATE every STATE_INTERVAL_MS (1.5 s), and BluetoothSerial::write() returns 0
+// when the SPP channel is really closed even though hasClient() still says it
+// is attached. So a genuinely attached-but-wedged link is one that has accepted
+// ZERO bytes for this whole window — 20 consecutive missed STATE frames. A
+// healthy idle car keeps writing STATE on that tick, so this can never fire on
+// an idle-but-live link.
+constexpr unsigned long BT_SPP_TX_STALL_MS = 30000u;
 
 // ===== P1b/T-7c · power/heap guards (2WD1M car parity) =====
 // Never drive with less free heap than this (emergency motor stop).

@@ -20,6 +20,25 @@ one-line dump was not. `Config.h:10` remains the source of truth for the value.
 > the saved routers and transport toggles. That is the U-98 "a flash starts clean"
 > ruling, not a defect — re-add the router on the bench (RUNSHEET Step 5).
 
+## 2.0.4 (2026-11-27) — U-142: a stalled SPP socket is noticed and recovered (4WD4M parity)
+
+- **The 2.0.3 fix reports the CURRENT attachment, which is still not enough on its
+  own.** `hasClient()` can stay latched after the phone is gone — the wedge the
+  U-141 latch was trying, and failing, to paper over. With a latched socket,
+  `connected()` never goes false, the own hotspot stays parked, `LINKCAP` stays 0
+  and the `BT_HARD_RESTART_MS` watchdog never gets the false edge it needs, so the
+  only way out was a power cycle.
+- **The liveness proof is TX progress, not `hasClient()`.** `ModeManager` broadcasts
+  `STATE` every `STATE_INTERVAL_MS` (1.5 s), and `BluetoothSerial::write()` returns
+  0 when the SPP channel is really closed even though `hasClient()` still says
+  attached. `connected()` now reports down once the socket has accepted **zero bytes
+  for `BT_SPP_TX_STALL_MS` (30 s)** — 20 consecutive missed STATE frames. A healthy
+  idle car keeps writing on that tick, so this cannot fire on an idle-but-live link.
+- **Recovery is automatic.** Reporting down releases the AP park after
+  `LINK_OWNER_HOLD_MS` (the own hotspot returns in roughly half a minute), and the
+  existing watchdog then re-inits BT. `begin()` and `restart()` clear the verdict, so
+  the next client is measured from scratch. Same rule as the 4WD4M's 1.3.22.
+
 ## 2.0.3 (2026-11-27) — U-142: the links stay connectable
 
 - **Bluetooth paired but would not connect, and the own hotspot was visible but
