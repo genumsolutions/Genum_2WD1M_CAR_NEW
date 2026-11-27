@@ -1,5 +1,20 @@
 # TODO — Genum_2WD1M_CAR_NEW
 
+## 2026-11-27 U-143 — WIP (not flashed)
+
+Owner audit round, both cars. Findings and evidence live in
+`../todo/2026-11-27-owner-audit.md`. Two defects fixed in this tree (2.0.5):
+
+- **U-143a** `FACTORY;RESET` now resets the live webpage setting (`pageOff_ = false`).
+The wipe removed the NVS key but left the RAM flag, so a muted page stayed muted
+until the next power cycle — one setting that did not return to its default.
+- **U-143b** the boot OLED join row now requires `bootAutojoin_`: with "remember
+last router" OFF the panel shows the own hotspot instead of naming a saved router
+the car is deliberately not joining.
+
+Gates: contract 0 failures, webpage-js all PASS, syntax 10/10. Flash + the device
+round are still owed, so this stays `WIP`.
+
 ## 2026-11-26 device round — OPEN
 
 First on-car test of 4.0.0. The cross-repo queue is `../todo/2026-11-26-device-test.md`:
