@@ -26,7 +26,7 @@ bool loadBootState(uint8_t &mode, uint16_t &speed) {
 bool loadDriveTrim(int16_t &out) {
   Preferences prefs;
   if (!prefs.begin(PREF_NS, true)) return false;
-  out = prefs.getShort("trim", 0x7FFF);
+  out = prefs.getShort(KEY_TRIM, 0x7FFF);
   prefs.end();
   if (out == 0x7FFF) return false;
   return true;
@@ -34,14 +34,14 @@ bool loadDriveTrim(int16_t &out) {
 bool saveDriveTrim(int16_t v) {
   Preferences prefs;
   if (!prefs.begin(PREF_NS, false)) return false;
-  prefs.putShort("trim", v);
+  prefs.putShort(KEY_TRIM, v);
   prefs.end();
   return true;
 }
 bool loadSteerLimit(int &out) {
   Preferences prefs;
   if (!prefs.begin(PREF_NS, true)) return false;
-  int v = prefs.getShort("steerlimit", 0x7FFF);
+  int v = prefs.getShort(KEY_STEER_LIMIT, 0x7FFF);
   prefs.end();
   if (v == 0x7FFF) return false;
   out = v;
@@ -52,7 +52,7 @@ bool loadSteerLimit(int &out) {
 bool saveSteerLimit(int v) {
   Preferences prefs;
   if (!prefs.begin(PREF_NS, false)) return false;
-  prefs.putShort("steerlimit", (int16_t)v);
+  prefs.putShort(KEY_STEER_LIMIT, (int16_t)v);
   prefs.end();
   return true;
 }

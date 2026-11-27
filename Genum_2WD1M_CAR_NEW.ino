@@ -1,7 +1,7 @@
 // =====================================================================
 // Genum_2WD1M_CAR_NEW — multimode 2WD1M car firmware (ESP32 + L298N + servo)
 // File: Genum_2WD1M_CAR_NEW.ino — entry point: boot, boot splash, watchdog,
-//       mode-switch wiring (BT ↔ SERVER)
+//       drive-mode wiring + transport enforcement (always-on web + SPP)
 // Property of GENUM SOLUTIONS PVT. LTD.
 // =====================================================================
 #include <Arduino.h>

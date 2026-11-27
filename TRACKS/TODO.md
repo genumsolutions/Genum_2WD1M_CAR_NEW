@@ -12,8 +12,14 @@ until the next power cycle — one setting that did not return to its default.
 last router" OFF the panel shows the own hotspot instead of naming a saved router
 the car is deliberately not joining.
 
-Gates: contract 0 failures, webpage-js all PASS, syntax 10/10. Flash + the device
-round are still owed, so this stays `WIP`.
+**U-144 (same day, 2.0.6):** residue pass only — stale `BT ↔ SERVER` header, the
+retired `ESP_CLI` page note, the auto-join-OFF claim in the wipe comment, dead
+`KEY_TRIM`/`KEY_STEER_LIMIT` literals, and a wrong `BT` in the boot-defaults log.
+No behaviour change.
+
+Gates: contract 0 failures, webpage-js all PASS, syntax 10/10, real compile
+1,901,870 B flash / 81,456 B RAM with 0 warnings. Flash + the device round are
+still owed, so this stays `WIP`.
 
 ## 2026-11-26 device round — OPEN
 

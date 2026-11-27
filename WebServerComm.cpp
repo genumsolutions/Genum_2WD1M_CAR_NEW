@@ -687,8 +687,9 @@ bool WebServerComm::wipeRoutersOnFreshFirmware() {
   w.remove("last_ok_pass");
   w.remove("last_transport");
   // U-105: a fresh install returns transport config to its clean defaults
-  // (Wi-Fi ON, Bluetooth ON, boot auto-join OFF — Q1 2026-10-22: the removed
-  // key means the default applies, so a re-flash never boot-hops). The retired switches are
+  // (Wi-Fi ON, Bluetooth ON, boot auto-join ON since T4). A re-flash still
+  // starts AP-only, because this wipe removes the stored router credentials
+  // below — armBootAutoJoin() then has no target. The retired switches are
   // erased too: `ap_psave` / `allow_parallel` from U-100 (and any partial
   // write of the new keys), so no residue from an older firmware can survive.
   w.remove("t_wifi");

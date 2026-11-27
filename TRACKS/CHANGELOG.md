@@ -20,6 +20,21 @@ one-line dump was not. `Config.h:10` remains the source of truth for the value.
 > the saved routers and transport toggles. That is the U-98 "a flash starts clean"
 > ruling, not a defect — re-add the router on the bench (RUNSHEET Step 5).
 
+## 2.0.6 (2026-11-27) — U-144: residue cleanup, no behaviour change
+
+- Removed the stale `BT ↔ SERVER` line from the sketch header, the retired
+  `ESP_CLI` note from the page header, and the auto-join-OFF claim in the
+  first-boot wipe comment (the default has been ON since T4; a re-flash still
+  starts AP-only because the router credentials are wiped too).
+- `ParamsStore` used bare `"trim"` / `"steerlimit"` literals while declaring
+  `KEY_TRIM` / `KEY_STEER_LIMIT` as the single sources — the constants were dead
+  and the literals were the real keys. The functions now use the constants.
+- The boot log's "keeping defaults" line named `BT`, but this car's default mode
+  is `2WD1M`; the line now says so.
+- Verified build (core 4.0.0, `esp32:esp32:esp32:PartitionScheme=huge_app`):
+  **1,901,870 B (60%) flash / 81,456 B (24%) RAM**, zero warnings with
+  `--warnings all`.
+
 ## 2.0.5 (2026-11-27) — U-143: reset restores the webpage setting; boot row respects AUTOJOIN
 
 - **`FACTORY;RESET` left the live webpage setting where it was.** The wipe removed
