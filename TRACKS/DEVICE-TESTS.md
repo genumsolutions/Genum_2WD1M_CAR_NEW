@@ -3,7 +3,26 @@
 > Owner-at-the-bench sheets. Test order per standing rule: physical remote first — EXCEPT this
 > car, until O-3 (remote pairing update for `2WD1M Car`) lands → app-first for round 1.
 
-## 2026-11-27 round — U-142: both links connect, and a stalled socket recovers (flash **2.0.4** — DEVICE VERIFY PENDING)
+## 2026-11-27 round — U-143: reset restores the webpage setting; boot row respects AUTOJOIN (flash **2.0.5** — DEVICE VERIFY PENDING)
+
+> Written 2026-11-27 from the owner's rule *"reset everything to the default ones"*
+> and *"show the last saved router only if remember-last-router is on"*. Source-traced
+> against this repo's `main`; nothing below is device-verified (F-61). Run these
+> BEFORE the U-142 rows so the reset row leaves the car clean for them.
+
+- [ ] **U-143-1 — ⭐ reset returns the webpage to ON, without a power cycle.**
+      Turn the page off (`WIFICFG;WIFI;PAGE;OFF`, page answers the ghost page), then
+      send `FACTORY;RESET`. Within the same session `/status` reads `"page_on":1`
+      and `http://192.168.245.1/` serves the real page again. Under the fault the
+      page stayed muted until the next boot.
+- [ ] **U-143-2 — ⭐ the boot panel names the saved router ONLY when auto-join is on.**
+      Save a router and `WIFICFG;AUTOJOIN;OFF`, then cold-boot: the OLED must show
+      `WiFi : 2WD1MCar_WiFi` (the own hotspot) from the first frame, never
+      `WiFi : <saved router>` / `IP : joining Ns`. Switch `AUTOJOIN;ON` and cold-boot
+      again: this time it must name the saved router while joining, then settle on
+      the joined SSID. A healthy router is required for the second half.
+
+## 2026-11-27 round — U-142: both links connect, and a stalled socket recovers (written for **2.0.4**; run on **2.0.5** — DEVICE VERIFY PENDING)
 
 > Written 2026-11-27 from the owner's bench report *"bluetooth pairs but doesn't
 > connect, the wi-fi shows the network but doesn't connect"*. Source-traced
@@ -35,7 +54,7 @@
 - [ ] **U-142-6 — the car names the live owner and the capacity.** With Bluetooth
       connected `/status` reads `"link_owner":"bt"` and `"link_cap":0` (the other
       method is paused, not broken). After U-142-3 it reads `"both"` / `1`.
-- [ ] **U-142-7 — the flash is identifiable.** `/status` `"fw"` reads `2.0.4` (and
+- [ ] **U-142-7 — the flash is identifiable.** `/status` `"fw"` reads `2.0.5` (and
       the OLED header agrees). If it reads anything else the flash did not take and
       U-142-1..6 are not testing this build.
 
